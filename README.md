@@ -1,6 +1,5 @@
 # nodeP5
 mimic P5.js in sdl using nodejs and native-canvas
-
 ## usage:
 ```shell
   npm install native-canvas
@@ -15,3 +14,6 @@ mimic P5.js in sdl using nodejs and native-canvas
  function draw(){}
  require("/path_to_nodep5.js/NodeP5.js")({setup, draw});
 ```
+## support
+ * highly dependant on native-canvas
+ * thanks to native-canvas module developer
