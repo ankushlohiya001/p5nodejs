@@ -20,3 +20,5 @@ mimic P5.js in sdl using nodejs and native-canvas
 ## support
  * highly dependant on native-canvas
  * thanks to native-canvas module developer
+
+### for updated source, check release tab
