@@ -1,0 +1,28 @@
+{
+  "name": "p5nodejs",
+  "version": "1.0.2",
+  "description": "mimicing P5.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ankushlohiya001/nodeP5.git"
+  },
+  "keywords": [
+    "canvas",
+    "p5",
+    "nodep5",
+    "sdl",
+    "sdlcanvas",
+    "nobrowsercanvas",
+    "html5canvas"
+  ],
+  "author": "mrJsPro",
+  "license": "ISC",
+  "dependencies": {
+    "native-canvas": "^1.0.5"
+  },
+  "hompage":"https://github.com/ankushlohiya001/nodeP5.git"
+}
