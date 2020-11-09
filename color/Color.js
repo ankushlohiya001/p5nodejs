@@ -47,7 +47,7 @@ class Color{
     r=hex(r,2);
     g=hex(g,2);
     b=hex(b,2);
-    let a=hex(this.alpha*255,2);
+    let a=hex(round(this.alpha*255),2);
     return `#${r}${g}${b}${a}`;
   }
   copy(){

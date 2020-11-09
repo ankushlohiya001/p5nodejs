@@ -11,14 +11,23 @@ class State{
     _ellipseMode: Mode.CENTER,
     _imageMode: Mode.CORNER,
     _rectMode: Mode.CORNER
-  };
-  static create(){
-    return new State();
   }
-  constructor(){
+  static create(ctx){
+    return new State(ctx);
+  }
+  constructor(ctx){
+    this.context=ctx;
     this.loadDefaults();
     this.text={size:16,font:'sans-serif'};
     this.changes={};
+    this.savedStates=[];
+  }
+  _saveState(prop){
+    let lstIndx=this.savedStates.length-1;
+    if(lstIndx<0) return;
+    if(!this.savedStates[lstIndx].hasOwnProperty(prop)){
+      this.savedStates[lstIndx][prop]=this[prop];
+    }
   }
   _makeChange(prop,state,isTransform=false){
     if(isTransform){
@@ -31,7 +40,8 @@ class State{
     }
     this.changes[prop]=state;
   }
-  applyState(ctx){
+  applyState(){
+    const ctx=this.context;
     for(let changeKey in this.changes){
       let change=this.changes[changeKey];
       if(change.constructor===Array){
@@ -44,25 +54,38 @@ class State{
     }
     this.changes={};
   }
-  applyEffect(ctx){
+  applyEffect(){
+    const ctx=this.context;
     if(this._willStroke) ctx.stroke();
     if(this._willFill) ctx.fill();
   }
   stroke(...params){
-    let col=color(...params);
-    if(!this._willStroke) this._willStroke=true;
+    const col=color(this._colorMode, ...params);
+    if(!this._willStroke){
+      this._saveState("_willStroke");
+      this._willStroke=true;
+    }
     this._makeChange('strokeStyle',col.toString());
   }
   noStroke(){
-    if(this._willStroke) this._willStroke=false;
+    if(this._willStroke){
+      this._saveState("_willStroke");
+      this._willStroke=false;
+    }
   }
   fill(...params){
-    let col=color(...params);
-    if(!this._willFill) this._willFill=true;
+    const col=color(this._colorMode, ...params);
+    if(!this._willFill){
+      this._saveState("_willFill");
+      this._willFill=true;
+    }
     this._makeChange('fillStyle',col.toString());
   }
   noFill(){
-    if(this._willFill) this._willFill=false;
+    if(this._willFill){
+      this._saveState("_willFill");
+      this._willFill=false;
+    }
   }
   strokeWeight(weight){
     this._makeChange('lineWidth',weight);
@@ -128,21 +151,27 @@ class State{
     this._makeChange("textBaseline",vAlign);    
   }
   angleMode(mode){
+    this._saveState("_angleMode");
     this._angleMode=mode;
   }
   blendMode(mode){
+    this._saveState("_blendMode");
     this._blendMode=mode;
   }
   colorMode(mode){
+    this._saveState("_colorMode");
     this._colorMode=mode;
   }
   ellipseMode(mode){
+    this._saveState("_ellipseMode");
     this._ellipseMode=mode;
   }
   imageMode(mode){
+    this._saveState("_imageMode");
     this._imageMode=mode;
   }
   rectMode(mode){
+    this._saveState("_rectMode");
     this._rectMode=mode;
   }
   applyMatrix(a=1,b=0,c=0 ,d=1,e=0,f=0){
@@ -171,6 +200,18 @@ class State{
   }
   translate(x,y){
     this._makeChange('transform',[1,0,0,1,x,y],true);
+  }
+  push(){
+    const ctx=this.context;
+    ctx.save();
+    this.savedStates.push({});
+  }
+  pop(){
+    const ctx=this.context;
+    ctx.restore();
+    if(this.savedStates.length){
+      Object.assign(this, this.savedStates.pop());
+    }
   }
   // setState(val){
   //   let changes;
