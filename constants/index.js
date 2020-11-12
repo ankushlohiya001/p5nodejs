@@ -45,7 +45,11 @@ let mods = [
     'BOLDITALIC',
     /*<AngleModes>*/
     'RADIANS',
-    'DEGREES'
+    'DEGREES',
+    /*<ArcModes>*/
+    'CHORD',
+    'PIE',
+    'OPEN',
 ];
 let GlobalConstants = {};
 for(let mod of mods){

@@ -1,5 +1,8 @@
 const engine=require("./../../node-sdl-canvas");
 const State=require("./state");
+const ShapeManager=require("./../shapes");
+const Mode=require("./../constants");
+const math=require("./../math");
 class Renderer{
   static defaultConfig={
     width:1280,
@@ -12,6 +15,8 @@ class Renderer{
     this.initContext(width, height);
     if(!onlyImage) this.initWindow({width, height, title:"nodeP5"});
     this.initState();
+    this.initShapeMgr();
+    this.initMisc();
   }
   get context(){
     return this._context;
@@ -39,6 +44,10 @@ class Renderer{
     const state=State.create(this.context);
     this.state=state;
   }
+  initShapeMgr(){
+    const shpmgr=ShapeManager.create(this);
+    this.shapes=shpmgr;
+  }
   initWindow(opts={}){
     const window=engine.createWindow(opts);
     engine.mainLoop();
@@ -48,6 +57,11 @@ class Renderer{
   initContext(width,height){
     const canvas=engine.createCanvas(width, height);
     this._context=canvas.getContext("2d");
+  }
+  initMisc(){
+    this.mode=Mode;
+    this.math=math;
+    math._setState(this.state);
   }
   getPixels(sx, sy, sw, sh){
     return this._context.getImageData(sx, sy, sw, sh);

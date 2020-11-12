@@ -10,16 +10,18 @@ class State{
     _colorMode: Mode.RGB,
     _ellipseMode: Mode.CENTER,
     _imageMode: Mode.CORNER,
-    _rectMode: Mode.CORNER
+    _rectMode: Mode.CORNER,
+    _arcMode: Mode.OPEN
   }
   static create(ctx){
     return new State(ctx);
   }
   constructor(ctx){
     this.context=ctx;
-    this.loadDefaults();
+    this._loadDefaults();
     this.text={size:16,font:'sans-serif'};
     this.changes={};
+    this.__applyPending=false;
     this.savedStates=[];
   }
   _saveState(prop){
@@ -39,7 +41,9 @@ class State{
       return;
     }
     this.changes[prop]=state;
+    if(!this.__applyPending) this.__applyPending=true;
   }
+
   applyState(){
     const ctx=this.context;
     for(let changeKey in this.changes){
@@ -53,11 +57,12 @@ class State{
       ctx[changeKey]=change;
     }
     this.changes={};
+    this.__applyPending=false;
   }
   applyEffect(){
     const ctx=this.context;
-    if(this._willStroke) ctx.stroke();
     if(this._willFill) ctx.fill();
+    if(this._willStroke) ctx.stroke();
   }
   stroke(...params){
     const col=color(this._colorMode, ...params);
@@ -73,6 +78,31 @@ class State{
       this._willStroke=false;
     }
   }
+
+  background(...params){
+    const col=color(this._colorMode, ...params);
+    const ctx=this.context;
+    const wid=ctx.canvas.width;
+    const hei=ctx.canvas.height;
+    ctx.save();
+    ctx.resetTransform();
+    ctx.fillStyle=col.toString();
+    ctx.fillRect(0,0, wid, hei);
+    ctx.restore();
+    ctx.beginPath();
+  }
+
+  clear(){
+    const ctx=this.context;
+    const wid=ctx.canvas.width;
+    const hei=ctx.canvas.height;
+    ctx.save();
+    ctx.resetTransform();
+    ctx.clearRect(0,0, wid, hei);
+    ctx.restore();
+    ctx.beginPath();
+  }
+
   fill(...params){
     const col=color(this._colorMode, ...params);
     if(!this._willFill){
@@ -114,17 +144,17 @@ class State{
     }
     this._makeChange('lineJoin',join);
   }
-  get _font(){
+  _font(){
     return `${this.text.size}px ${this.text.font}`;
   }
   textFont(font,size){
     this.text.font=font;
     if(size) this.text.size=size;
-    this._makeChange('font',this._font);
+    this._makeChange('font',this._font());
   }
   textSize(size){
     this.text.size=size;
-    this._makeChange('font',this._font);
+    this._makeChange('font',this._font());
   }
   textAlign(hAlign,vAlign){
     switch(hAlign){
@@ -154,6 +184,10 @@ class State{
     this._saveState("_angleMode");
     this._angleMode=mode;
   }
+  arcMode(mode){
+    this._saveState("_arcMode");
+    this._arcMode=mode;
+  }
   blendMode(mode){
     this._saveState("_blendMode");
     this._blendMode=mode;
@@ -178,7 +212,7 @@ class State{
     this._makeChange('setTransform',[a,b,c,d,e,f],true);
   }
   resetMatrix(){
-    this._makeChange('setTransform',[...State.defaults._transformationMatrix],true);
+    this._makeChange('setTransform',[1,0,0,1,0,0],true);
   }
   rotate(ang){
     let isRadian=this._angleMode===Mode.RADIANS;
@@ -202,6 +236,7 @@ class State{
     this._makeChange('transform',[1,0,0,1,x,y],true);
   }
   push(){
+    if(this.__applyPending) this.applyState();
     const ctx=this.context;
     ctx.save();
     this.savedStates.push({});
@@ -223,7 +258,7 @@ class State{
   //   }else{return false;}
   //   Object.assign(this,changes);
   // }
-  loadDefaults(){
+  _loadDefaults(){
     Object.assign(this,State.defaults);
   }
 }

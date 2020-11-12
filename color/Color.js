@@ -50,6 +50,11 @@ class Color{
     let a=hex(round(this.alpha*255),2);
     return `#${r}${g}${b}${a}`;
   }
+  toColorObj(){
+    const [r, g, b]=this.value;
+    const a=this.alpha*255;
+    return {r, g, b, a};
+  }
   copy(){
     let tmpColor=new Color(this.value);
     tmpColor.alpha=this.alpha;
