@@ -5,24 +5,26 @@ class State{
   static defaults={
     _willStroke: true,
     _willFill: true,
+    _willErase: false,
     _angleMode: Mode.RADIANS,
     _blendMode: Mode.BLEND,
     _colorMode: Mode.RGB,
     _ellipseMode: Mode.CENTER,
     _imageMode: Mode.CORNER,
     _rectMode: Mode.CORNER,
-    _arcMode: Mode.OPEN
+    _arcMode: Mode.OPEN,
+    _shapeMode: null
   }
   static create(ctx){
     return new State(ctx);
   }
   constructor(ctx){
     this.context=ctx;
-    this._loadDefaults();
     this.text={size:16,font:'sans-serif'};
     this.changes={};
-    this.__applyPending=false;
+    this.__pendingApply=false;
     this.savedStates=[];
+    this._loadDefaults();
   }
   _saveState(prop){
     let lstIndx=this.savedStates.length-1;
@@ -41,7 +43,7 @@ class State{
       return;
     }
     this.changes[prop]=state;
-    if(!this.__applyPending) this.__applyPending=true;
+    if(!this.__pendingApply) this.__pendingApply=true;
   }
 
   applyState(){
@@ -57,7 +59,7 @@ class State{
       ctx[changeKey]=change;
     }
     this.changes={};
-    this.__applyPending=false;
+    this.__pendingApply=false;
   }
   applyEffect(){
     const ctx=this.context;
@@ -102,7 +104,16 @@ class State{
     ctx.restore();
     ctx.beginPath();
   }
-
+  // erase(strengthFill=100, strengthStroke=100){
+  //   this._willErase=true;
+  //   this.push();
+  //   this.stroke(255,strengthStroke);
+  //   this.fill(255,strengthFill);
+  // }
+  // noErase(){
+  //   this.pop();
+  //   this._willErase=false;
+  // }
   fill(...params){
     const col=color(this._colorMode, ...params);
     if(!this._willFill){
@@ -208,6 +219,9 @@ class State{
     this._saveState("_rectMode");
     this._rectMode=mode;
   }
+  beginShape(mode=1){
+    this._shapeMode=mode;
+  }
   applyMatrix(a=1,b=0,c=0 ,d=1,e=0,f=0){
     this._makeChange('setTransform',[a,b,c,d,e,f],true);
   }
@@ -236,7 +250,7 @@ class State{
     this._makeChange('transform',[1,0,0,1,x,y],true);
   }
   push(){
-    if(this.__applyPending) this.applyState();
+    if(this.__pendingApply) this.applyState();
     const ctx=this.context;
     ctx.save();
     this.savedStates.push({});
@@ -260,6 +274,7 @@ class State{
   // }
   _loadDefaults(){
     Object.assign(this,State.defaults);
+    this.fill(255);
   }
 }
 

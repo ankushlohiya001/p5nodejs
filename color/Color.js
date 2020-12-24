@@ -61,6 +61,7 @@ class Color{
     return tmpColor;
   }
   static color(colorMode,...pars){
+    if(pars.length<1) pars[0]=0;
     let color="";
     let alpha=100;
     if(pars[0].constructor===Array){

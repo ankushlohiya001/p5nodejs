@@ -50,6 +50,15 @@ let mods = [
     'CHORD',
     'PIE',
     'OPEN',
+    /*<ShapeModes>*/
+    'POINTS',
+    'LINES',
+    'TRIANGLES',
+    'TRIANGLE_FAN',
+    'TRIANGLE_STRIP',
+    'QUADS',
+    'QUAD_STRIP',
+    'CLOSE'
 ];
 let GlobalConstants = {};
 for(let mod of mods){

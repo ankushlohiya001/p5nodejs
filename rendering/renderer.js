@@ -8,12 +8,12 @@ class Renderer{
     width:1280,
     height:720
   }
-  constructor(wid,hei,onlyImage=false){
+  constructor(wid,hei){
     let {width,height}=Renderer.defaultConfig;
     width=wid || width;
     height=hei || height;
     this.initContext(width, height);
-    if(!onlyImage) this.initWindow({width, height, title:"nodeP5"});
+    this.initWindow({width, height, title:"nodeP5"});
     this.initState();
     this.initShapeMgr();
     this.initMisc();
@@ -50,8 +50,8 @@ class Renderer{
   }
   initWindow(opts={}){
     const window=engine.createWindow(opts);
-    engine.mainLoop();
     window.canvas=this.canvas;
+    window.preserveCanvasState=true;
     this.window=window;
   }
   initContext(width,height){
@@ -64,6 +64,8 @@ class Renderer{
     math._setState(this.state);
   }
   getPixels(sx, sy, sw, sh){
+    sw=sw || this.width;
+    sh=sh || this.height;
     return this._context.getImageData(sx, sy, sw, sh);
   }
   updatePixels(...pars){
@@ -76,6 +78,9 @@ class Renderer{
   }
   save(name="nodeP5"){
     engine.saveAs(this.canvas, name);
+  }
+  exit(){
+    this.window.exit();
   }
 }
 

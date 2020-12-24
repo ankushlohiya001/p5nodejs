@@ -3,6 +3,7 @@ const math=require("./../math");
 class ShapeManager{
   constructor(renderer){
     this._renderer=renderer;
+    this._vertices=[];
   }
 
   static create(ren){
@@ -215,6 +216,79 @@ class ShapeManager{
       ctx.lineTo(x3, y3);
       ctx.closePath();
     });
+  }
+  vertex(px, py){
+    this._vertices.push([px, py]);
+  }
+  endShape(mode){
+    const state=this.getState();
+    const ctx=this.getCtx();
+    let fan;
+    if(state._shapeMode===null) return;
+    switch(state._shapeMode){
+      case Mode.POINTS:{
+        for(let pt of this._vertices){
+          this.point(pt[0],pt[1]);
+        }
+      }
+      break;
+      case Mode.LINES:{
+        for(let i=0;i<this._vertices.length;i+=2){
+          if(i+1>=this._vertices.length) break;
+          const pt=this._vertices[i],
+                qt=this._vertices[i+1];
+          this.line(pt[0],pt[1], qt[0], qt[1]);
+        }
+      }
+      break;
+      case Mode.TRIANGLES:{
+        for(let i=0;i<this._vertices.length;i+=3){
+          if(i+2>=this._vertices.length) break;
+          const pt=this._vertices[i],
+                qt=this._vertices[i+1],
+                rt=this._vertices[i+2];
+          this.triangle(pt[0],pt[1],qt[0],qt[1],rt[0],rt[1]);
+        }
+      }
+      break;
+      case Mode.QUADS:{
+        for(let i=0;i<this._vertices.length;i+=4){
+          if(i+3>=this._vertices.length) break;
+          const pt=this._vertices[i],
+                qt=this._vertices[i+1],
+                rt=this._vertices[i+2],
+                st=this._vertices[i+3];
+          this.quad(pt[0],pt[1],qt[0],qt[1],rt[0],rt[1],st[0],st[1]);
+        }
+      }
+      break;
+      break;
+      case Mode.TRIANGLE_STRIP:
+      break;
+      case Mode.QUAD_STRIP:
+      break;
+      case Mode.TRIANGLE_FAN:fan=function(){
+        const pt=this._vertices[0];
+        for(let i=2;i<this._vertices.length-1;i++){
+          const qt=this._vertices[i]
+          this.line(pt[0],pt[1], qt[0], qt[1]);
+        }
+      }
+      default:{
+        const init=this._vertices[0];
+        this._drawShape(ctx=>{
+          ctx.moveTo(init[0], init[1]);
+          for(let i=1;i<this._vertices.length;i++){
+            const pt=this._vertices[i];
+            ctx.lineTo(pt[0],pt[1]);
+          }
+          if(mode===Mode.CLOSE) ctx.closePath();
+        });
+        (fan||function(){}).call(this);
+      }
+    }
+    state._shapeMode=null;
+    this._vertices=[];
   }
 };
 

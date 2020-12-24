@@ -42,12 +42,12 @@ class math{
     return Math.log(value);
   }
   mag(x,y){
-    return math.dist(0,0,x,y);
+    return this.dist(0,0,x,y);
   }
   map(value,start1,stop1,start2,stop2){
     if(stop1-start1===0) return value;
     let per=(value-start1)/(stop1-start1);
-    return math.lerp(start2,stop2,per);
+    return this.lerp(start2,stop2,per);
   }
   max(...pars){
     return Math.max(...pars);
@@ -56,7 +56,7 @@ class math{
     return Math.min(...pars);
   }
   norm(value,start,end){
-    return math.map(value,start,end,0,1);
+    return this.map(value,start,end,0,1);
   }
   pow(value,power){
     return Math.pow(value,power);
@@ -73,7 +73,7 @@ class math{
   fract(value){
     return value-Math.floor(value);
   }
-  random(min=0,max=null){
+  random(min=1,max=null){
     if(min.constructor===Array){
       return min[Math.floor(Math.random()*min.length)];
     }
