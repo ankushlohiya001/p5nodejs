@@ -13,19 +13,41 @@ class State{
     _imageMode: Mode.CORNER,
     _rectMode: Mode.CORNER,
     _arcMode: Mode.OPEN,
-    _shapeMode: null
+    _shapeMode: null,
+    _fps: 60,
+    _isLoop: true
   }
+
   static create(ctx){
     return new State(ctx);
   }
+
   constructor(ctx){
     this.context=ctx;
     this.text={size:16,font:'sans-serif'};
+    this._loop=null;
+    this._deltaTime=0;
+    this._lastPerformance=0;
+    this._frameCount= 0;
+    this._pixelData= null;
+    this._eventData= {
+      keyPressed:false,
+      mousePressed:false,
+      mouseX: 0,
+      mouseY: 0,
+      key: '',
+      keyCode: 0
+    };
+    ///////////////
     this.changes={};
     this.__pendingApply=false;
     this.savedStates=[];
+    //////////////////
     this._loadDefaults();
+    this.updateKeyEvent=this._updateKeyEvent.bind(this);
+    this.updateMouseEvent=this._updateMouseEvent.bind(this);
   }
+
   _saveState(prop){
     let lstIndx=this.savedStates.length-1;
     if(lstIndx<0) return;
@@ -33,6 +55,7 @@ class State{
       this.savedStates[lstIndx][prop]=this[prop];
     }
   }
+
   _makeChange(prop,state,isTransform=false){
     if(isTransform){
       if(!this.changes[prop]){
@@ -61,6 +84,7 @@ class State{
     this.changes={};
     this.__pendingApply=false;
   }
+  
   applyEffect(){
     const ctx=this.context;
     if(this._willFill) ctx.fill();
@@ -74,6 +98,7 @@ class State{
     }
     this._makeChange('strokeStyle',col.toString());
   }
+  
   noStroke(){
     if(this._willStroke){
       this._saveState("_willStroke");
@@ -110,10 +135,12 @@ class State{
   //   this.stroke(255,strengthStroke);
   //   this.fill(255,strengthFill);
   // }
+  
   // noErase(){
   //   this.pop();
   //   this._willErase=false;
   // }
+  
   fill(...params){
     const col=color(this._colorMode, ...params);
     if(!this._willFill){
@@ -122,15 +149,18 @@ class State{
     }
     this._makeChange('fillStyle',col.toString());
   }
+  
   noFill(){
     if(this._willFill){
       this._saveState("_willFill");
       this._willFill=false;
     }
   }
+  
   strokeWeight(weight){
     this._makeChange('lineWidth',weight);
   }
+  
   strokeCap(cap){
     switch(cap){
       case Mode.SQUARE: cap="butt";
@@ -143,6 +173,7 @@ class State{
     }
     this._makeChange('lineCap',cap);
   }
+  
   strokeJoin(join){
     switch(join){
       case Mode.MITER: join="miter";
@@ -155,18 +186,22 @@ class State{
     }
     this._makeChange('lineJoin',join);
   }
+  
   _font(){
     return `${this.text.size}px ${this.text.font}`;
   }
+  
   textFont(font,size){
     this.text.font=font;
     if(size) this.text.size=size;
     this._makeChange('font',this._font());
   }
+  
   textSize(size){
     this.text.size=size;
     this._makeChange('font',this._font());
   }
+  
   textAlign(hAlign,vAlign){
     switch(hAlign){
       case Mode.LEFT: hAlign="left";
@@ -191,70 +226,87 @@ class State{
     this._makeChange("textAlign",hAlign);
     this._makeChange("textBaseline",vAlign);    
   }
+  
   angleMode(mode){
     this._saveState("_angleMode");
     this._angleMode=mode;
   }
+  
   arcMode(mode){
     this._saveState("_arcMode");
     this._arcMode=mode;
   }
+  
   blendMode(mode){
     this._saveState("_blendMode");
     this._blendMode=mode;
   }
+  
   colorMode(mode){
     this._saveState("_colorMode");
     this._colorMode=mode;
   }
+  
   ellipseMode(mode){
     this._saveState("_ellipseMode");
     this._ellipseMode=mode;
   }
+  
   imageMode(mode){
     this._saveState("_imageMode");
     this._imageMode=mode;
   }
+  
   rectMode(mode){
     this._saveState("_rectMode");
     this._rectMode=mode;
   }
+  
   beginShape(mode=1){
     this._shapeMode=mode;
   }
+  
   applyMatrix(a=1,b=0,c=0 ,d=1,e=0,f=0){
     this._makeChange('setTransform',[a,b,c,d,e,f],true);
   }
+  
   resetMatrix(){
     this._makeChange('setTransform',[1,0,0,1,0,0],true);
   }
+  
   rotate(ang){
     let isRadian=this._angleMode===Mode.RADIANS;
     const scale=math.cos(ang, isRadian);
     const shear=math.sin(ang, isRadian);
     this._makeChange('transform',[scale,shear,-shear,scale,0,0],true);
   }
+  
   scale(vecX, vecY){
     vecY=vecY || vecX;
     this._makeChange('transform',[vecX,0,0,vecY,0,0],true);
   }
+  
   shearX(ang){
     let isRadian=this._angleMode===Mode.RADIANS;
     this._makeChange('transform',[1,0,math.tan(ang,isRadian),1,0,0],true);
   }
+  
   shearY(ang){
     let isRadian=this._angleMode===Mode.RADIANS;
     this._makeChange('transform',[1,-math.tan(ang,isRadian),0,1,0,0],true);
   }
+  
   translate(x,y){
     this._makeChange('transform',[1,0,0,1,x,y],true);
   }
+  
   push(){
     if(this.__pendingApply) this.applyState();
     const ctx=this.context;
     ctx.save();
     this.savedStates.push({});
   }
+  
   pop(){
     const ctx=this.context;
     ctx.restore();
@@ -272,6 +324,97 @@ class State{
   //   }else{return false;}
   //   Object.assign(this,changes);
   // }
+  
+  frameRate(fps=null){
+    if(fps === null || fps<1) return 1000/this.deltaTime; 
+    this._fps = fps;
+    if(this._isLoop){
+      clearTimeout(this._loop);
+      this._loop = null;
+    }
+  }
+  
+  loop(){
+    this._isLoop=true;
+  }
+  
+  noLoop(){
+    this._isLoop=false;
+  }
+  get deltaTime(){
+    return this._deltaTime;
+  }
+  get frameCount(){
+    return this._frameCount;
+  }
+  
+  get width(){
+    return this.context.canvas.width;
+  }
+  
+  get height(){
+    return this.context.canvas.height;
+  }
+  
+  get mouseX(){
+    return this._eventData.mouseX;
+  }
+  
+  get mouseY(){
+    return this._eventData.mouseY;
+  }
+  
+  get mouseIsPressed(){
+    return !!this._eventData.mousePressed;
+  }
+
+  get keyIsPressed(){
+    return !!this._eventData.keyPressed;
+  }
+
+  get key(){
+    return this._eventData.key;
+  }
+  
+  get keyCode(){
+    return this._eventData.keyCode;
+  }
+  
+  get pixels(){
+    return this._pixelData?this._pixelData.data:null;
+  }
+
+  loadPixels(x = 0,y = 0,wid = null,hei = null){
+    wid = wid||this.width;
+    hei = hei||this.height;
+    this._pixelData = this.context.getImageData(x,y,wid,hei);
+    this._pixelData.loc = {x,y};
+  }
+
+  updatePixels(x=null, y=null, dw=null, dh=null){
+    const pixels=this._pixelData;
+    dw=dw || pixels.width;
+    dh=dh || pixels.height;
+    if(x==null) x=pixels.loc.x;
+    if(y==null) y=pixels.loc.y;
+    this.context.putImageData(this._pixelData, x, y, 0, 0, dw, dh);
+    this._pixelData=null;
+  }
+
+  _updateKeyEvent(eve){
+    this._eventData.key=eve.key;
+    this._eventData.keyCode=eve.keyCode;
+  }
+
+  _updateMouseEvent(eve){
+    this._eventData.mouseX=eve.clientX;
+    this._eventData.mouseY=eve.clientY;
+  }
+
+  _incFrameCount(){
+    this._frameCount++;
+  }
+
   _loadDefaults(){
     Object.assign(this,State.defaults);
     this.fill(255);

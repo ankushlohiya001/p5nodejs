@@ -1,13 +1,13 @@
 const Mode=require("./../constants");
 const math=require("./../math");
-class ShapeManager{
+class Shaper{
   constructor(renderer){
     this._renderer=renderer;
     this._vertices=[];
   }
 
   static create(ren){
-    return new ShapeManager(ren);
+    return new Shaper(ren);
   }
 
   static angleModer(ang, mod){
@@ -131,7 +131,7 @@ class ShapeManager{
   ellipse(cx, cy, wid, hei){
     hei=hei || wid;
 
-    [cx, cy, wid, hei]=ShapeManager.ellipseModer(cx, cy, wid, hei, this.getState()._ellipseMode);
+    [cx, cy, wid, hei]=Shaper.ellipseModer(cx, cy, wid, hei, this.getState()._ellipseMode);
     
     const radX=wid/2;
     const radY=hei/2;
@@ -156,7 +156,7 @@ class ShapeManager{
     br=math.constrain(br,0,min);
     bl=math.constrain(bl,0,min);
 
-    [px,py,wid,hei]=ShapeManager.rectModer(px, py, wid, hei, this.getState()._rectMode);
+    [px,py,wid,hei]=Shaper.rectModer(px, py, wid, hei, this.getState()._rectMode);
     
     this._drawShape(ctx=>{
       ctx.moveTo(px + wid/2, py);
@@ -197,11 +197,11 @@ class ShapeManager{
 
   arc(cx, cy, w, h, st, end){
     const state=this.getState();
-    [cx, cy, w, h]=ShapeManager.ellipseModer(cx, cy, w, h, state._ellipseMode);
-    const arcModerFns=ShapeManager.arcModer(cx,cy,state._arcMode);
+    [cx, cy, w, h]=Shaper.ellipseModer(cx, cy, w, h, state._ellipseMode);
+    const arcModerFns=Shaper.arcModer(cx,cy,state._arcMode);
 
-    st=ShapeManager.angleModer(st, state._angleMode);
-    end=ShapeManager.angleModer(end, state._angleMode);
+    st=Shaper.angleModer(st, state._angleMode);
+    end=Shaper.angleModer(end, state._angleMode);
     
     this._drawShape(ctx=>{
       ctx.ellipse(cx, cy, w/2, h/2, 0, st, end);
@@ -290,6 +290,19 @@ class ShapeManager{
     state._shapeMode=null;
     this._vertices=[];
   }
+  text(txt,posx, posy){
+    const state=this.getState();
+    this._drawShape(ctx=>{
+      if(state._willFill) ctx.fillText(txt, posx, posy);
+      if(state._willStroke) ctx.strokeText(txt, posx, posy);
+    });
+  }
+  image(img, ...pars){
+    if(!img.surface) return;
+    this._drawShape(ctx=>{
+      ctx.drawImage(img.surface, ...pars);
+    });
+  }
 };
 
-module.exports=ShapeManager;
+module.exports=Shaper;
