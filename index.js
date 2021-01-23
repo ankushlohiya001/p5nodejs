@@ -3,9 +3,10 @@ const EventManager=require("./events");
 const Mode=require("./constants");
 const math=require("./math");
 const Shaper=require("./shapes");
-const ColorManager=require("./color");
+const colorManager=require("./color");
 const utils=require("./utils");
-
+const io=require("./io");
+const Runvironment=require("./env");
 {
   const preload = global.preload || function(){};
   const setup = global.setup || function(){};
@@ -13,35 +14,43 @@ const utils=require("./utils");
 
   const internelRenderer = new Renderer(1280, 720);
   const eventManager=new EventManager(internelRenderer);
-  const shaper=new Shaper(internelRenderer);
+  const runvironment=new Runvironment(internelRenderer.window);
+  const shaper=new Shaper();
   const makeGlobal=utils.makeGlobal;
 
-  makeGlobal(Mode);
-  makeGlobal(ColorManager);
-  makeGlobal(utils.globals);
-  makeGlobal(Object.getPrototypeOf(math), math);
-  makeGlobal(Object.getPrototypeOf(internelRenderer.state), internelRenderer.state);
-  makeGlobal(Object.getPrototypeOf(shaper), shaper);
-
+  shaper.setState(internelRenderer.state);
   math.setState(internelRenderer.state);
-
-  eventManager.applyAllEvents();
+  colorManager.setState(internelRenderer.state);
   
   internelRenderer.setDrawFuns(draw);
 
   (async function(){
+    makeGlobal(io);
+    
     await new Promise(res=>{
       preload();
       let lop=setInterval(()=>{
-        if(utils.pendingLoads<=0){
+        if(io.preloadDone()){
           clearInterval(lop);
           res();
         }
       },10);
     });
+
+    makeGlobal(Object.getPrototypeOf(runvironment), runvironment);
+    makeGlobal(Mode);
+    makeGlobal(colorManager);
+    makeGlobal(utils.globals);
+    makeGlobal(Object.getPrototypeOf(math), math);
+    makeGlobal(Object.getPrototypeOf(internelRenderer.state), internelRenderer.state);
+    makeGlobal(Object.getPrototypeOf(shaper), shaper);
+    makeGlobal(Renderer.globals, internelRenderer)
+    
+    eventManager.applyAllEvents();
+
     setup();
+    internelRenderer.state._incFrameCount();
     internelRenderer.loop();
   })();
   // setup();
-  makeGlobal(Renderer.globals, internelRenderer)
 }

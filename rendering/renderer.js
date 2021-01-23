@@ -7,8 +7,20 @@ class Renderer{
     height:720
   }
   static globals={
-    redraw(){
-      this.loop();
+    createCanvas(w, h, title){
+      this.window.size={w, h};
+      this.window.title=title;
+    },
+    saveCanvas(filename="nodeP5.png"){
+      this.window.saveAs(filename);
+    },
+    redraw(times=1){
+      for(let i=0;i<times;i++){
+        if(this.pendingDraw) return;
+        this.pendingDraw=true;
+        this.loop();
+        this.pendingDraw=false;
+      }
     }
   }
   constructor(wid,hei){
@@ -18,6 +30,7 @@ class Renderer{
     this.initContext(width, height);
     this.initWindow({width, height, title:"nodeP5"});
     this.initState();
+    this.pendingDraw=false;
     this.loop=this.loop.bind(this);
   }
 
@@ -86,10 +99,13 @@ class Renderer{
     this.userDrawFuns();
     this.state.pop();
     this.draw();
-    const delay = Math.max(1000/this.state._fps - this.state.deltaTime,0);
-    if(this.state._isLoop) this.state._loop = setTimeout(this.loop, delay);
+    const timeConsumed = performance.now() - crnt;
+    let delayForNext = 1000/this.state._fps - timeConsumed;
+    delayForNext=delayForNext < 0 ? 0 : delayForNext;
+    if(this.state._isLoop) this.state._loop = setTimeout(this.loop, delayForNext);
   }
 
+// 0 - 10 -> 10, 30 - 10 -> 20
   save(name="nodeP5"){
     engine.saveAs(this.canvas, name);
   }

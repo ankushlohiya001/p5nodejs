@@ -31,6 +31,7 @@ function fetch(path, option){
 
 		});
 		req.on("error",reject);
+		if(option.body) req.write(option.body);
 		req.end();
 	});
 }

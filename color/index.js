@@ -1,7 +1,11 @@
 const Color=require("./Color.js");
+let state={};
 module.exports={
-  color(colorMode,...params){
-    return Color.color(colorMode,...params);
+  setState(st){
+    state=st;
+  },
+  color(...params){
+    return Color.color(state._colorMode,...params);
   },
   red(col){
     return Color.red(col);
@@ -18,8 +22,8 @@ module.exports={
   hue(col){
     return Color.hue(col);
   },
-  saturation(col,colorMode){
-    return Color.saturation(col,colorMode);
+  saturation(col){
+    return Color.saturation(col,state._colorMode);
   },
   lightness(col){
     return Color.lightness(col);

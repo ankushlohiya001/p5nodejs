@@ -1,8 +1,8 @@
 const Mode=require("./../constants");
 const math=require("./../math");
 class Shaper{
-  constructor(renderer){
-    this._renderer=renderer;
+  constructor(){
+    this._state={};
     this._vertices=[];
   }
 
@@ -94,22 +94,17 @@ class Shaper{
     return parArr;
   }
 
-  getCtx(){
-    return this._renderer.context;
+  setState(state){
+    this._state=state;
   }
 
-  getState(){
-    return this._renderer.state;
-  }
-
-  setRenderer(renderer){
-    this._renderer=renderer;
-    return this;
+  get ctx(){
+    return this._state.context;
   }
 
   _drawShape(funs, tmpStateFn){
-    const ctx=this.getCtx();
-    const state=this.getState();
+    const ctx=this.ctx;
+    const state=this._state;
     ctx.beginPath();
     if(!!tmpStateFn){
       state.push();
@@ -131,7 +126,7 @@ class Shaper{
   ellipse(cx, cy, wid, hei){
     hei=hei || wid;
 
-    [cx, cy, wid, hei]=Shaper.ellipseModer(cx, cy, wid, hei, this.getState()._ellipseMode);
+    [cx, cy, wid, hei]=Shaper.ellipseModer(cx, cy, wid, hei, this._state._ellipseMode);
     
     const radX=wid/2;
     const radY=hei/2;
@@ -156,7 +151,7 @@ class Shaper{
     br=math.constrain(br,0,min);
     bl=math.constrain(bl,0,min);
 
-    [px,py,wid,hei]=Shaper.rectModer(px, py, wid, hei, this.getState()._rectMode);
+    [px,py,wid,hei]=Shaper.rectModer(px, py, wid, hei, this._state._rectMode);
     
     this._drawShape(ctx=>{
       ctx.moveTo(px + wid/2, py);
@@ -196,7 +191,7 @@ class Shaper{
   }
 
   arc(cx, cy, w, h, st, end){
-    const state=this.getState();
+    const state=this._state;
     [cx, cy, w, h]=Shaper.ellipseModer(cx, cy, w, h, state._ellipseMode);
     const arcModerFns=Shaper.arcModer(cx,cy,state._arcMode);
 
@@ -221,8 +216,8 @@ class Shaper{
     this._vertices.push([px, py]);
   }
   endShape(mode){
-    const state=this.getState();
-    const ctx=this.getCtx();
+    const state=this._state;
+    const ctx=this.ctx;
     let fan;
     if(state._shapeMode===null) return;
     switch(state._shapeMode){
@@ -291,7 +286,7 @@ class Shaper{
     this._vertices=[];
   }
   text(txt,posx, posy){
-    const state=this.getState();
+    const state=this._state;
     this._drawShape(ctx=>{
       if(state._willFill) ctx.fillText(txt, posx, posy);
       if(state._willStroke) ctx.strokeText(txt, posx, posy);

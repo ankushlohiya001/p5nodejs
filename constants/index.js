@@ -58,7 +58,14 @@ let mods = [
     'TRIANGLE_STRIP',
     'QUADS',
     'QUAD_STRIP',
-    'CLOSE'
+    'CLOSE',
+    /*<Cursor types>*/
+    'ARROW',
+    'CROSS',
+    'HAND',
+    'MOVE',
+    'TEXT',
+    'WAIT'
 ];
 let GlobalConstants = {};
 for(let mod of mods){

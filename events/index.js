@@ -3,14 +3,23 @@ class EventManager{
     keyPressed: "keypress",
     mousePressed: "mousedown",
     mouseReleased: "mouseup",
+    mouseEntered: "mouseenter",
+    mouseLeaved: "mouseleave",
     keyTyped: "keyinput",
     keyReleased: "keyup",
-    mouseWheel: "wheel",
-    mouseDragged: "drag"
+    mouseScrolled: "wheel",
+    mouseDragged: "drag",
+    windowResized: "resize",
+    windowMoved: "move",
+    windowMaximized: "maximize",
+    windowMinimized: "minimize",
+    windowFocused: "focus",
+    windowBlurred: "blur"
   }
 
   constructor(renderer){
     this.renderer=renderer;
+    this.renderer.window.closable=false;
   }
 
   applyEvent(eve, todo){
@@ -40,10 +49,16 @@ class EventManager{
 
     this.applyEvent("mousemove", state.updateMouseEvent);
     this.applyEvent("keypress", state.updateKeyEvent);
+
   }
 
   applyInternalEvents(){
-    this.applyEvent("exit",console.log,"p5 window exited!!");
+    this.applyEvent("close",()=>{
+      if(this.renderer.window.confirm("do you really want to exit??")){
+        this.renderer.window.closable=true;
+        this.renderer.window.exit();
+      }
+    });
   }
 
   applyUserEvents(){
