@@ -1,10 +1,13 @@
 const math=require("./math");
 const Vector=require("./vector");
+const {Line}=require("./geomat");
 
 const mathClass=math.constructor;
-mathClass.prototype.Vector = Vector;
-mathClass.prototype.createVector=function(a, b){
-  return new Vector(a,b);
-}
+
+mathClass.Vector = Vector;
+mathClass.createVector= Vector.createVector;
+
+mathClass.Line = Line;
+mathClass.createLine= Line.createLine;
 
 module.exports=math;

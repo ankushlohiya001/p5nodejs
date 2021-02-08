@@ -405,7 +405,9 @@ class State{
   get frameCount(){
     return this._frameCount;
   }
-  
+  get drawingContext(){
+    return this.context;
+  }
   get width(){
     return this.context.canvas.width;
   }

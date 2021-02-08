@@ -11,6 +11,9 @@ class Vector{
     return new Vector(x, y);
   }
 /////////
+  static createVector(x, y){
+    return new Vector(x, y);
+  }
   constructor(x=0,y=0){
     this.x=x;
     this.y=y;
@@ -66,7 +69,7 @@ class Vector{
     return this.set(this.x/mag, this.y/mag);
   }
   limit(max){
-    max=Math.min(this.mag(), max);
+    max=math.min(this.mag(), max);
     return this.setMag(max);
   }
   setMag(mag){
@@ -120,6 +123,12 @@ class Vector{
     return v2.heading() - v1.heading();
   }
 
+  static normalize(v1){
+    v1=v1.copy();
+    let mag=v1.mag();
+    return v1.set(v1.x/mag, v1.y/mag);
+  }
+
   static dot(v1,v2){
     v1=v1.copy();
     return v1.dot(v2);
@@ -139,7 +148,7 @@ class Vector{
     return new Vector(math.cos(ang), math.sin(ang));
   }
   static random2D(){
-    let ang=Math.random()*2*Math.PI;
+    let ang=math.random()*2*math.PI;
     return new Vector(mat.cos(ang), math.sin(ang));
   }
 }
