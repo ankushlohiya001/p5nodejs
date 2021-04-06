@@ -7,6 +7,7 @@ const colorManager = require("./color");
 const utils = require("./utils");
 const io = require("./io");
 const Runvironment = require("./env");
+const ioElems = require("./rendering/io_elems.js");
 {
   const preload = global.preload || function(){};
   const setup = global.setup || function(){};
@@ -20,7 +21,9 @@ const Runvironment = require("./env");
   shaper.setState(internelRenderer.state);
   math.setState(internelRenderer.state);
   colorManager.setState(internelRenderer.state);
-  
+  ioElems.setState(internelRenderer.state);
+
+  internelRenderer.setIOElementDrawFuns(ioElems.ioDrawer);
   internelRenderer.setDrawFuns(draw);
 
   (async function(){
@@ -46,7 +49,7 @@ const Runvironment = require("./env");
       makeGlobal(Object.getPrototypeOf(internelRenderer.state), internelRenderer.state);
       makeGlobal(Object.getPrototypeOf(shaper), shaper);
       makeGlobal(Renderer.globals, internelRenderer)
-      
+      makeGlobal(ioElems.globals);
       eventManager.applyAllEvents();
 
       setup();

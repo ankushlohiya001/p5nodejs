@@ -1,4 +1,4 @@
-const {color}=require("./../color");
+const {color, Color}=require("./../color");
 const Mode=require("./../constants");
 const math=require("./../math");
 class State{
@@ -85,7 +85,11 @@ class State{
       }
       ctx[changeKey]=change;
     }
-    this.changes={};
+    this.clearChanges();
+  }
+
+  clearChanges(){
+    this.changes={}
     this.__pendingApply=false;
   }
   
@@ -162,7 +166,9 @@ class State{
   }
   
   strokeWeight(weight){
-    this._makeChange('lineWidth',weight);
+    if(weight){
+      this._makeChange('lineWidth',weight);
+    }
   }
   
   strokeCap(cap){
@@ -372,17 +378,7 @@ class State{
       Object.assign(this, this.savedStates.pop());
     }
   }
-  // setState(val){
-  //   let changes;
-  //   if(val.constructor===Function){
-  //     let lst=Object.assign({},this);
-  //     changes=val(lst);
-  //   }else if(val.constructor===Object){
-  //     changes=val;
-  //   }else{return false;}
-  //   Object.assign(this,changes);
-  // }
-  
+
   frameRate(fps=null){
     if(fps === null || fps<1) return 1000/this.deltaTime; 
     this._fps = fps;
@@ -399,15 +395,19 @@ class State{
   noLoop(){
     this._isLoop=false;
   }
+  
   get deltaTime(){
     return this._deltaTime;
   }
+  
   get frameCount(){
     return this._frameCount;
   }
+  
   get drawingContext(){
     return this.context;
   }
+  
   get width(){
     return this.context.canvas.width;
   }
@@ -459,12 +459,58 @@ class State{
   get pixels(){
     return this._pixelData?this._pixelData.data:null;
   }
-
+//////////////////////////
+///// pixel manipulation
   loadPixels(x = 0,y = 0,wid = null,hei = null){
     wid = wid||this.width;
     hei = hei||this.height;
     this._pixelData = this.context.getImageData(x,y,wid,hei);
+    this._pixelData.data.pitch = this._pixelData.width;
     this._pixelData.loc = {x,y};
+  }
+
+  pixelLoop(func, incX=null, incY=null){
+    incX = incX || 1;
+    incY = incY || incX;
+    const pixels=this._pixelData;
+    if(!pixels || typeof func!="function") return;
+    const [wid, hei]=[pixels.width, pixels.height];
+    for(let x=0; x < wid; x+=incX){
+      for(let y=0; y < hei; y+=incY){
+        func(x, y);
+      }
+    }
+  }
+
+  setPixelOf(pixels, px, py, col){
+    if(typeof col=="object" && col.constructor===Color){
+      const ind=py * pixels.pitch*4 + 4*px;
+      if(ind<pixels.length){
+        pixels[ind]=col.value[0];
+        pixels[ind+1]=col.value[1];
+        pixels[ind+2]=col.value[2];
+        pixels[ind+3]=col.alpha*255;
+      }
+    }
+  }
+
+  setPixel(px, py, col){
+    if(!this._pixelData) return;
+    const pixels=this._pixelData.data;
+    setPixelOf(pixels, px, py, col);
+  }
+
+  getPixelOf(pixels, px, py){
+    const ind=py * pixels.pitch*4 + 4*px;
+    const hei=pixels.length/(4*pixels.pitch);
+    if(px<0 || py<0 || px >= pixels.pitch || py >= hei) return null;
+    return color(pixels[ind], pixels[ind+1], pixels[ind+2], pixels[ind+3]*0.392156863);
+  }
+
+  getPixel(px, py){
+    if(!this._pixelData) return null;
+    const pixels=this._pixelData.data;
+    return getPixelOf(pixels, px, py);
   }
 
   updatePixels(x=null, y=null, dw=null, dh=null){
@@ -477,6 +523,7 @@ class State{
     this._pixelData=null;
   }
 
+////////////////////////////////////
   _updateKeyEvent(eve){
     this._eventData.key=eve.key;
     this._eventData.keyCode=eve.keyCode;

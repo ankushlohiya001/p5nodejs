@@ -8,8 +8,8 @@ class Runvironment{
 	print(...params){
 		console.log(...params);
 	}
-	after(milli, dothis, ...params){
-		setTimeout(dothis, milli, ...params);
+	after(seconds, dothis, ...params){
+		setTimeout(dothis, seconds*1000, ...params);
 	}
 	alert(mess){
     return this.window.alert(mess);
@@ -18,7 +18,7 @@ class Runvironment{
    	return this.window.confirm(mess);
   }
   fullscreen(tog){
-  	this.window.fullscreen(tog);
+  	return this.window.fullscreen(tog);
   }
   grab(){
   	this.window.grab(true);

@@ -11,9 +11,20 @@ class Renderer{
       this.window.size={w, h};
       this.window.title=title;
     },
-    saveCanvas(filename="nodeP5.png"){
-      this.window.saveAs(filename);
+
+    saveCanvas(filename="nodeP5.png", after){
+      this.window.saveAs(filename, after);
     },
+
+    saveAndExit(filename="nodeP5.png", wait=1){
+      this.state.noLoop();
+      this.window.saveAs(filename, ()=>{
+        setTimeout(()=>{
+          this.exit();
+        }, wait*1000);
+      });
+    },
+
     redraw(times=1){
       for(let i=0;i<times;i++){
         if(this.pendingDraw) return;
@@ -67,7 +78,6 @@ class Renderer{
     this.state=state;
   }
 
-
   initWindow(opts={}){
     const window=engine.createWindow(opts);
     window.canvas=this.canvas;
@@ -91,23 +101,25 @@ class Renderer{
     this.userDrawFuns=funs;
   }
 
+  setIOElementDrawFuns(funs){
+    this.drawIOElements=funs;
+  }
   loop(){
     const crnt = performance.now();
     this.state._deltaTime= crnt - this.state._lastPerformance;
     this.state._lastPerformance = crnt;
     this.state.push();
     this.userDrawFuns();
+    this.state.clearChanges();
+    this.state.pop();
+    this.state.push();
+    if(this.drawIOElements) this.drawIOElements();
     this.state.pop();
     this.draw();
     const timeConsumed = performance.now() - crnt;
     let delayForNext = 1000/this.state._fps - timeConsumed;
     delayForNext=delayForNext < 0 ? 0 : delayForNext;
     if(this.state._isLoop) this.state._loop = setTimeout(this.loop, delayForNext);
-  }
-
-// 0 - 10 -> 10, 30 - 10 -> 20
-  save(name="nodeP5"){
-    engine.saveAs(this.canvas, name);
   }
 
   exit(){

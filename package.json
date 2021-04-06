@@ -1,6 +1,6 @@
 {
   "name": "p5nodejs",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "mimic P5.js in sdl using nodejs",
   "main": "index.js",
   "scripts": {
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ankushlohiya001/nodeP5/issues"
   },
-  "homepage": "https://github.com/ankushlohiya001/nodeP5#readme"
+  "homepage": "https://github.com/ankushlohiya001/nodeP5#readme",
+  "dependencies": {
+    "node-sdl-canvas": "^2.1.0"
+  }
 }

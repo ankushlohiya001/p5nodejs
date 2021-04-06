@@ -1,6 +1,7 @@
 const fetch=require("./fetch");
 const fs=require("fs");
 const Image=require("./../image");
+const Sound=require("./../audio");
 
 const waiter={
 	_pendingEves:0,
@@ -66,6 +67,11 @@ const requests={
 			scsMethod(res);
 		}
 
+		if(typeof path =="object" && path.constructor===Buffer){
+			scsMethodMod(JSON.parse(path));
+			return jsonObj;
+		}
+
 		if(path.startsWith("http")){
 			fetch(path)
 			.then(res=>res.json())
@@ -104,6 +110,11 @@ const requests={
 			scsMethod(lines);
 		}
 
+		if(typeof path =="object" && path.constructor===Buffer){
+			scsMethodMod(path.toString());
+			return image;
+		}
+
 		if(path.startsWith("http")){
 			fetch(path)
 			.then(res=>res.text())
@@ -133,37 +144,42 @@ const requests={
 		let image=new Image();
 		waiter.addWait();
 
-		const scsMethodMod=function(res){
-			Image
-			.loadSurface(res)
-			.then(surface=>{
-				waiter.finishWait();
-				image.setSurface(surface);
-				scsMethod(image);
-			})
-			.catch(errMethod);
-		}
-
-		if(path.startsWith("http")){
-			fetch(path)
-			.then(res=>res.buffer())
-			.then(scsMethodMod)
-			.catch(err=>{
-				waiter.finishWait();
-				errMethod(err);
-			});
-		}else{
-			fs.readFile(path,(err, data)=>{
-				if(err){
-					waiter.finishWait();
-					errMethod(err);
-					return;
-				}
-				scsMethodMod(data);
-			})
-		}
+		Image
+		.loadSurface(path)
+		.then(surface=>{
+			waiter.finishWait();
+			image.setSurface(surface);
+			scsMethod(image);
+		})
+		.catch(err=>{
+			waiter.finishWait();
+			errMethod(err);
+		});
 
 		return image;
+	},
+
+	loadSound(path, scsMethod, errMethod){
+		scsMethod=scsMethod||function(){};
+		errMethod=errMethod||function(){};
+
+		let sound=new Sound();
+		waiter.addWait();
+
+		Sound
+		.loadSound(path)
+		.then(audBuf=>{
+			waiter.finishWait();
+			sound.setBuffer(audBuf);
+			scsMethod(sound);
+		})
+		.catch(err=>{
+			waiter.finishWait();
+			errMethod(err);
+		});;
+
+
+		return sound;
 	}
 
 };

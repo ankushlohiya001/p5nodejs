@@ -13,6 +13,7 @@ class Shaper{
   static angleModer(ang, mod){
     return mod === Mode.DEGREES ? math.radians(ang) : ang;
   }
+
   static arcModer(cx, cy, mod){
     let fun=null;
     switch(mod){
@@ -32,6 +33,7 @@ class Shaper{
     }
     return fun;
   }
+  
   static ellipseModer(px, py, wid, hei, mod){
     let parArr=[];
     switch(mod){
@@ -212,9 +214,11 @@ class Shaper{
       ctx.closePath();
     });
   }
+ 
   vertex(px, py){
     this._vertices.push([px, py]);
   }
+ 
   endShape(mode){
     const state=this._state;
     const ctx=this.ctx;
@@ -285,6 +289,7 @@ class Shaper{
     state._shapeMode=null;
     this._vertices=[];
   }
+
   text(txt,posx, posy){
     const state=this._state;
     this._drawShape(ctx=>{
@@ -292,6 +297,7 @@ class Shaper{
       if(state._willStroke) ctx.strokeText(txt, posx, posy);
     });
   }
+
   image(img, ...pars){
     if(!img.surface) return;
     this._drawShape(ctx=>{

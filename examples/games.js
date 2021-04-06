@@ -9,6 +9,50 @@ setup=function(){
   noStroke();
   // print(deltaTime)
   net=[random(100,width), random(100,height)];
+  let btn=createButton("Retry", 150,100);
+  btn.background="#2827";
+  btn.color="#fff";
+  btn.border_color="#fff";
+  btn.setTextSize(42);
+  btn.onMouseMove=function(){
+    let col="#2f4";
+    btn.color=col;
+    btn.border_color=col;
+  }
+  btn.onMouseOut=function(){
+    let col="#fff";
+    btn.color=col;
+    btn.border_color=col;
+  }
+  btn.onClick=function(){
+    print("pacman");
+    lifes=3;
+    score=0;
+  }
+
+  let btn2=createButton("Exit", 500,100);
+  btn2.background="#0007";
+  btn2.color="#fff";
+  btn2.border_color="#fff";
+  btn2.setTextSize(42);
+  btn2.onMouseMove=function(){
+    let col="#f24";
+    btn2.color=col;
+    btn2.border_color=col;
+  }
+  btn2.onMouseOut=function(){
+    let col="#fff";
+    btn2.color=col;
+    btn2.border_color=col;
+  }
+  let requested=false;
+  btn2.onClick=function(){
+    exit();
+    // if(!requested){
+    //   requested=true;
+    //   after(3000, exit);
+    // }
+  }
 }
 
 let pos=[0,0];
