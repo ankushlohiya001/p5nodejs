@@ -1,5 +1,6 @@
 const load=require("audio-loader");
 const play=require("audio-play");
+
 class Sound{
   constructor(){
     this._audioBuffer=null;

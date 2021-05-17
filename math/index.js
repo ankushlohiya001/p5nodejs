@@ -1,20 +1,24 @@
-const math=require("./math");
-const Vector=require("./vector");
-const Matrix=require("./matrix");
-const {Line}=require("./geomat");
-const Noise=require("./noise");
+const math = require("./math_funs");
+const Vector = require("./vector");
+const Matrix = require("./matrix");
+const {
+  Line
+} = require("./geomat");
+const Noise = require("./noise");
 
-const mathClass=math.constructor;
+math.public.Vector = Vector;
+math.public.createVector = Vector.createVector;
 
-mathClass.Vector = Vector;
-mathClass.createVector= Vector.createVector;
+math.public.Line = Line;
+math.public.createLine = Line.createLine;
 
-mathClass.Line = Line;
-mathClass.createLine= Line.createLine;
+math.public.Matrix = Matrix;
 
-mathClass.Matrix = Matrix;
+math.public.noise = Noise.noise;
+math.public.noiseDetail = Noise.noiseDetail;
+math.public.noiseSeed = Noise.noiseSeed;
 
-mathClass.noise=Noise.noise;
-mathClass.noiseDetail=Noise.noiseDetail;
-mathClass.noiseSeed=Noise.noiseSeed;
-module.exports=math;
+module.exports = {
+  setState: math.setState,
+  mathFuns: math.public
+};

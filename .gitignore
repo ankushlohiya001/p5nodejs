@@ -2,4 +2,5 @@ testCodes
 package-lock.json
 test
 p5.js
-sams/*
+sams
+node_modules

@@ -7,11 +7,11 @@ let perlin_octaves = 4; // default to medium smooth
 let perlin_amp_falloff = 0.5; // 50% reduction/octave
 
 function scaled_cosine(i) {
- return 0.5 * (1.0 - Math.cos(i * Math.PI));
+  return 0.5 * (1.0 - Math.cos(i * Math.PI));
 };
 
 let perlin; // will be initialized lazily by noise() or noiseSeed()
-          
+
 function noise(x) {
   let y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   let z = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
@@ -91,56 +91,56 @@ function noise(x) {
 };
 
 
- function noiseDetail(lod, falloff) {
-   if (lod > 0) {
-     perlin_octaves = lod;
-   }
-   if (falloff > 0) {
-     perlin_amp_falloff = falloff;
-   }
- };
+function noiseDetail(lod, falloff) {
+  if (lod > 0) {
+    perlin_octaves = lod;
+  }
+  if (falloff > 0) {
+    perlin_amp_falloff = falloff;
+  }
+};
 
 function noiseSeed(seed) {
-   // Linear Congruential Generator
-   // Variant of a Lehman Generator
-   let lcg = (function() {
-     // Set to values from http://en.wikipedia.org/wiki/Numerical_Recipes
-     // m is basically chosen to be large (as it is the max period)
-     // and for its relationships to a and c
-     let m = 4294967296;
-     // a - 1 should be divisible by m's prime factors
-     let a = 1664525;
-     // c and m should be co-prime
-     let c = 1013904223;
-     let seed, z;
-     return {
-       setSeed: function setSeed(val) {
-         // pick a random seed if val is undefined or null
-         // the >>> 0 casts the seed to an unsigned 32-bit integer
-         z = seed = (val == null ? Math.random() * m : val) >>> 0;
-       },
-       getSeed: function getSeed() {
-         return seed;
-       },
-       rand: function rand() {
-         // define the recurrence relationship
-         z = (a * z + c) % m;
-         // return a float in [0, 1)
-         // if z = m then z / m = 0 therefore (z % m) / m < 1 always
-         return z / m;
-       }
-     };
-   })();
+  // Linear Congruential Generator
+  // Variant of a Lehman Generator
+  let lcg = (function() {
+    // Set to values from http://en.wikipedia.org/wiki/Numerical_Recipes
+    // m is basically chosen to be large (as it is the max period)
+    // and for its relationships to a and c
+    let m = 4294967296;
+    // a - 1 should be divisible by m's prime factors
+    let a = 1664525;
+    // c and m should be co-prime
+    let c = 1013904223;
+    let seed, z;
+    return {
+      setSeed: function setSeed(val) {
+        // pick a random seed if val is undefined or null
+        // the >>> 0 casts the seed to an unsigned 32-bit integer
+        z = seed = (val == null ? Math.random() * m : val) >>> 0;
+      },
+      getSeed: function getSeed() {
+        return seed;
+      },
+      rand: function rand() {
+        // define the recurrence relationship
+        z = (a * z + c) % m;
+        // return a float in [0, 1)
+        // if z = m then z / m = 0 therefore (z % m) / m < 1 always
+        return z / m;
+      }
+    };
+  })();
 
-   lcg.setSeed(seed);
-   perlin = new Array(PERLIN_SIZE + 1);
-   for (let i = 0; i < PERLIN_SIZE + 1; i++) {
-     perlin[i] = lcg.rand();
-   }
- };
+  lcg.setSeed(seed);
+  perlin = new Array(PERLIN_SIZE + 1);
+  for (let i = 0; i < PERLIN_SIZE + 1; i++) {
+    perlin[i] = lcg.rand();
+  }
+};
 
- module.exports={
+module.exports = {
   noise,
   noiseDetail,
   noiseSeed
- };
+};

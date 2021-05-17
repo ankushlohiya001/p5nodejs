@@ -20,7 +20,7 @@ setup=function(){
 		}
 
 		update(){
-			this.vel=Vector.random2D();
+			this.vel=Vector.random2d();
 			let limit=1;
 			let col;
 			if(random(100) < 1){

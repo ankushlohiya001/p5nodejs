@@ -1,6 +1,6 @@
 {
   "name": "p5nodejs",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "mimic P5.js in sdl using nodejs",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/ankushlohiya001/nodeP5#readme",
   "dependencies": {
-    "node-sdl-canvas": "^2.1.0"
+    "node-sdl-canvas": "^2.1.0",
+    "color-space": "^1.16.0",
+    "color-parse": "^1.4.2",
+    "node-fetch": "^"
   }
 }
