@@ -1,62 +1,61 @@
 setup=function(){
-	// frameRate(10);
-	// noLoop();
-	pos=createVector(0, len);
-	vel=createVector();
-	acc=createVector();
-	anchor=createVector(width/2, height/2);
+  // frameRate(10);
+  // noLoop();
+  pos=createVector(0, len);
+  vel=createVector();
+  acc=createVector();
+  anchor=createVector(width/2, height/2);
 
-	pos.add(anchor);
-	strokeWeight(4);
-	colorMode(HSL);
-	angleMode(DEGREES);
+  pos.add(anchor);
+  strokeWeight(4);
+  colorMode(HSL);
+  angleMode(DEGREES);
 }
 
 let pos, vel, acc, len=200;
 let anchor;
 draw=function(){
-	background(0, 20);
-	stroke(255);
 
-	let sp=Vector.sub(pos, anchor);
-	let crnt=sp.mag();
-	sp.normalize();
+  if(mouseIsPressed) pos.set(mouseX, mouseY);
+  background(0, 20);
+  stroke(255);
 
-	let dist=crnt - len;
-	sp.mult(-0.006 * dist);
+  let sp=Vector.sub(pos, anchor);
+  let crnt=sp.mag();
+  sp.normalize();
 
-	acc.add(sp);
+  let dist=crnt - len;
+  sp.mult(-0.006 * dist);
 
-	let gravity=createVector(0, 1);
-	acc.add(gravity);
+  acc.add(sp);
 
-	let drag=vel.copy();
-	let velVal=vel.mag();
-	drag.normalize();
-	const con=0.5*0.001;
-	drag.mult(- con * velVal**2);
+  let gravity=createVector(0, 1);
+  acc.add(gravity);
 
-	acc.add(drag);
+  let drag=vel.copy();
+  let velVal=vel.mag();
+  drag.normalize();
+  const con=0.5*0.001;
+  drag.mult(- con * velVal**2);
 
-	vel.add(acc);
-	pos.add(vel);
-	acc.zero();
+  acc.add(drag);
 
-	line(anchor.x, anchor.y, pos.x, pos.y);
+  vel.add(acc);
+  pos.add(vel);
+  acc.zero();
 
-	let hu=map(Vector.sub(pos, anchor).heading(), -180, 180, 0, 360);
-	stroke(hu, 100, 50);
-	drawingContext.shadowBlur=20;
-	drawingContext.shadowColor=color(hu, 100, 50);
+  line(anchor.x, anchor.y, pos.x, pos.y);
 
-	push();
-	strokeWeight(8);
-	circle(pos.x, pos.y, 100);
-	pop();
+  let hu=map(Vector.sub(pos, anchor).heading(), -180, 180, 0, 360);
+  stroke(hu, 100, 50);
+
+  push();
+  drawingContext.shadowBlur=20;
+  drawingContext.shadowColor=color(hu, 100, 50);
+  strokeWeight(8);
+  circle(pos.x, pos.y, 100);
+  pop();
 
 }
 
-mousePressed=function(){
-	pos.set(mouseX, mouseY);
-}
 require("../");

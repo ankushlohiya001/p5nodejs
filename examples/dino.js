@@ -77,7 +77,7 @@ keyPressed=function(){
 	let gd=createVector(0,70);
 	vel.add(gd);
 }
-require("./");
+require("../");
 
 function rectDim(rect){
 	return {

@@ -105,10 +105,10 @@ class Renderer {
 
   exit() {
     const window = this.window;
-    if (window.confirm("do you really want to exit??")) {
+    // if (window.confirm("do you really want to exit??")) {
       window.closable = true;
       window.exit();
-    }
+    // }
   }
 }
 

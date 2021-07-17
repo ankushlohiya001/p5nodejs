@@ -22,12 +22,12 @@ class Color {
   }
 
   _updateColorSpaces() {
-    this.colorSpaces.hsl = (colorSpace.rgb.hsl(this.value)).map(math.round);
-    this.colorSpaces.hsv = (colorSpace.rgb.hsv(this.value)).map(math.round);
-    this.colorSpaces.rgb = this.value
-  }
-  //////////////////////
-  //under discussion 
+      this.colorSpaces.hsl = (colorSpace.rgb.hsl(this.value)).map(math.round);
+      this.colorSpaces.hsv = (colorSpace.rgb.hsv(this.value)).map(math.round);
+      this.colorSpaces.rgb = this.value
+    }
+    //////////////////////
+    //under discussion 
 
   get r() {
     return this.value[0];
@@ -100,45 +100,46 @@ class Color {
     let spaceAlpha;
     switch (pars.length) {
       case 1:
-      case 2: {
-        let [a, b] = pars;
-        b = b || alpha;
-        switch (a.constructor) {
-          case String:
-            let col = colorParse(a.toLowerCase());
-            if (col.space){
-              color = col.values;
-              b = col.alpha*100;
-            }
-            else color = [0, 0, 0];
-            break;
-          case Number:
-            color = [a, a, a];
-            break;
-          case Color:
-            return a.copy();
-          default:
-            color = [0, 0, 0];
+      case 2:
+        {
+          let [a, b] = pars;
+          b = b || alpha;
+          switch (a.constructor) {
+            case String:
+              let col = colorParse(a.toLowerCase());
+              if (col.space) {
+                color = col.values;
+                b = col.alpha * 100;
+              } else color = [0, 0, 0];
+              break;
+            case Number:
+              color = [a, a, a];
+              break;
+            case Color:
+              return a.copy();
+            default:
+              color = [0, 0, 0];
+          }
+          alpha = parseFloat(b);
         }
-        alpha = parseFloat(b);
-      }
-      break;
-    case 3:
-    case 4: {
-      let [a, b, c, d] = pars;
-      alpha = d || alpha;
-      switch (colorMode) {
-        case Mode.HSL:
-          colorMode = 'hsl';
-          break;
-        case Mode.HSB:
-          colorMode = 'hsv';
-          break;
-        default:
-          colorMode = 'rgb';
-      }
-      color = colorSpace[colorMode].rgb([a, b, c]);
-    }
+        break;
+      case 3:
+      case 4:
+        {
+          let [a, b, c, d] = pars;
+          alpha = d || alpha;
+          switch (colorMode) {
+            case Mode.HSL:
+              colorMode = 'hsl';
+              break;
+            case Mode.HSB:
+              colorMode = 'hsv';
+              break;
+            default:
+              colorMode = 'rgb';
+          }
+          color = colorSpace[colorMode].rgb([a, b, c]);
+        }
     }
     let tmpColor = new Color(color);
     tmpColor.alpha = alpha / 100;
@@ -208,6 +209,30 @@ class Color {
     b /= colors.length;
     return new Color([r, g, b]);
   }
+
+  static RGB_HSL(r, g, b) {
+    return colorSpace.rgb.hsl([r, g, b]);
+  }
+
+  static RGB_HSV(r, g, b) {
+    return colorSpace.rgb.hsv([r, g, b]);
+  }
+
+  static HSL_RGB(h, s, l) {
+    return colorSpace.hsl.rgb([h, s, l]);
+  }
+
+  static HSL_HSV(h, s, l) {
+    return colorSpace.hsl.hsv([h, s, l]);
+  }
+
+  static HSV_RGB(h, s, v) {
+    return colorSpace.hsv.rgb([h, s, v]);
+  }
+
+  static HSV_HSL(h, s, v) {
+    return colorSpace.hsv.hsl([h, s, v]);
+  }
 }
 
 /////////////////////////////////////////////////////////
@@ -258,7 +283,7 @@ const colorFuns = {
 
 
 module.exports = {
-  setState(stat){
+  setState(stat) {
     state = stat;
   },
   colorFuns

@@ -85,7 +85,7 @@ class EventManager {
   applyUserEvents() {
     const eventMap = EventManager.userEventMap;
     for (let event in eventMap) {
-      this.applyEvent(eventMap[event], global[event] || function() {});
+      if (global[event]) this.applyEvent(eventMap[event], global[event]);
     }
   }
 

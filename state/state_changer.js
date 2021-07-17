@@ -414,6 +414,12 @@ const stateChanger = {
     };
   },
 
+  getPixelData(){
+    const arr = state._pixelData.data.slice();
+    arr.pitch = state._pixelData.width;
+    return arr;
+  },
+
   pixelLoop(func, incX = null, incY = null) {
     incX = incX || 1;
     incY = incY || incX;
@@ -429,6 +435,8 @@ const stateChanger = {
 
   setPixelOf(pixels, px, py, col) {
     if (typeof col == "object" && col.constructor === Array) {
+      px = math.int(px);
+      py = math.int(py);
       const ind = py * pixels.pitch * 4 + 4 * px;
       if (ind < pixels.length) {
         pixels[ind] = col[0];
@@ -446,10 +454,12 @@ const stateChanger = {
   },
 
   getPixelOf(pixels, px, py) {
+    px = math.int(px);
+    py = math.int(py);
     const ind = py * pixels.pitch * 4 + 4 * px;
     const hei = pixels.length / (4 * pixels.pitch);
     if (px < 0 || py < 0 || px >= pixels.pitch || py >= hei) return [];
-    return [pixels[ind], pixels[ind + 1], pixels[ind + 2]];
+    return [pixels[ind], pixels[ind + 1], pixels[ind + 2], pixels[ind + 3]];
   },
 
   getPixel(px, py) {
@@ -523,12 +533,12 @@ const stateChanger = {
         type = "arrow";
     }
     const window = state.renderer.window;
-    window.showCursor = true;
-    window.setCursor(type);
+    window.cursorHidden = false;
+    window.cursor = type;
   },
 
   noCursor() {
-    state.renderer.window.showCursor = false;
+    state.renderer.window.cursorHidden = true;
   },
 
   fullscreen(tog) {

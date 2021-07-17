@@ -73,7 +73,7 @@ function makeGlobal(obj) {
     fill(255);
     strokeCap(ROUND);
     //////////////////
-    setup();
+    await setup();
     internelRenderer.loop(draw);
   })();
   // setup();

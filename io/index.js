@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const fs = require("fs");
 const Image = require("./../image");
-const Sound = require("./../audio");
+// const Sound = require("./../audio");
 
 const waiter = {
   _pendingEves: 0,
@@ -170,28 +170,28 @@ const requests = {
     return image;
   },
 
-  loadSound(path, scsMethod, errMethod) {
-    scsMethod = scsMethod || function() {};
-    errMethod = errMethod || function() {};
+  // loadSound(path, scsMethod, errMethod) {
+  //   scsMethod = scsMethod || function() {};
+  //   errMethod = errMethod || function() {};
 
-    let sound = new Sound();
-    waiter.addWait();
+  //   let sound = new Sound();
+  //   waiter.addWait();
 
-    Sound
-      .loadSound(path)
-      .then(audBuf => {
-        waiter.finishWait();
-        sound.setBuffer(audBuf);
-        scsMethod(sound);
-      })
-      .catch(err => {
-        waiter.finishWait();
-        errMethod(err);
-      });;
+  //   Sound
+  //     .loadSound(path)
+  //     .then(audBuf => {
+  //       waiter.finishWait();
+  //       sound.setBuffer(audBuf);
+  //       scsMethod(sound);
+  //     })
+  //     .catch(err => {
+  //       waiter.finishWait();
+  //       errMethod(err);
+  //     });;
 
 
-    return sound;
-  }
+  //   return sound;
+  // }
 
 };
 

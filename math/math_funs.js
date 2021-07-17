@@ -77,12 +77,40 @@ const mathFuns = {
     return mathFuns.lerp(start2, stop2, per);
   },
 
+  maxIndex(...pars) {
+    if (pars.length < 1) return;
+    if (typeof pars[0] == "object" && pars[0].constructor == Array) {
+      pars = pars[0];
+    }
+    let maxIndex = 0;
+    for (let i = 1; i < pars.length; i++) {
+      if (pars[i] > pars[maxIndex]) {
+        maxIndex = i;
+      }
+    }
+    return maxIndex;
+  },
+
   max(...pars) {
-    return Math.max(...pars);
+    return pars[maxIndex(...pars)];
+  },
+
+  minIndex(...pars) {
+    if (pars.length < 1) return;
+    if (typeof pars[0] == "object" && pars[0].constructor == Array) {
+      pars = pars[0];
+    }
+    let minIndex = 0;
+    for (let i = 1; i < pars.length; i++) {
+      if (pars[i] < pars[minIndex]) {
+        minIndex = i;
+      }
+    }
+    return minIndex;
   },
 
   min(...pars) {
-    return Math.min(...pars);
+    return pars[mathFuns.minIndex(...pars)];
   },
 
   norm(value, start, end) {
@@ -118,6 +146,10 @@ const mathFuns = {
       min = 0;
     }
     return min + Math.random() * (max - min);
+  },
+
+  randomInt(min, max) {
+    return int(mathFuns.random(min, max));
   },
 
   randomBool() {
@@ -174,6 +206,14 @@ const mathFuns = {
   },
 
   * range(from, to = null, diff = null) {
+    if (typeof from == "object" && from != null) {
+      if (from.constructor == Array) {
+        for (let i = 0; i < from.length; i++) yield [from[i], i];
+      } else {
+        for (let key in from) yield [from[key], key];
+      }
+      return;
+    }
     if (diff == null) diff = 1;
     if (to == null) {
       to = from;
