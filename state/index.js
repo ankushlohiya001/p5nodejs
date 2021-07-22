@@ -127,9 +127,12 @@ class State {
     this._eventData.mouseY = eve.clientY;
   }
 
-  incFrameCount() {
+  updateLastEvent(){
     this._lastEventData.mouseX = this._eventData.mouseX;
     this._lastEventData.mouseY = this._eventData.mouseY;
+  }
+
+  incFrameCount() {
     this._frameCount++;
   }
 

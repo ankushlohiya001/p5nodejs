@@ -1,6 +1,10 @@
 let renderer = {};
 
 const public = {
+  noCanvas() {
+
+  },
+
   createCanvas(w, h, title) {
     renderer.window.resizeTo(w, h);
     renderer.window.title = title;
@@ -19,11 +23,11 @@ const public = {
   //   });
   // },
 
-  redraw(times = 1) {
+  async redraw(times = 1) {
     for (let i = 0; i < times; i++) {
       if (renderer.pendingDraw) return;
       renderer.pendingDraw = true;
-      renderer.loop(renderer.draw);
+      await renderer.loop(renderer.draw);
       renderer.pendingDraw = false;
     }
   },

@@ -119,7 +119,7 @@ const shapes = {
     const state = shaper.state;
     const ctx = shaper.context;
     let fan;
-    if (state._shapeMode === null) return;
+    // if (state._shapeMode === null) return;
     switch (state._shapeMode) {
       case Mode.POINTS:
         {
@@ -203,29 +203,29 @@ const shapes = {
   image(img, ...pars) {
     if (!img.surface) return;
     let ix, iy, iw, ih, dx, dy, dw, dh;
-    const parLen=pars.length;
-    switch(parLen){
+    const parLen = pars.length;
+    switch (parLen) {
       case 2:
         [dx, dy] = pars;
         ix = iy = 0;
         iw = dw = img.width;
         ih = dh = img.height;
-      break;
+        break;
       case 4:
         [dx, dy, dw, dh] = pars;
         ix = iy = 0;
         iw = img.width;
         ih = img.height;
-      break;
+        break;
       case 8:
         [ix, iy, iw, ih, dx, dy, dw, dh] = pars;
-      break;
-      default: throw ("wrong parameter combination!!");
-      return;
+        break;
+      default:
+        throw ("wrong parameter combination!!");
+        return;
     }
 
     const Shaper = shaper.constructor;
-    // [ix, iy, iw, ih] = Shaper.rectModer(ix, iy, iw, ih, shaper.state._imageMode);
     [dx, dy, dw, dh] = Shaper.rectModer(dx, dy, dw, dh, shaper.state._imageMode);
 
     shaper.drawShape(ctx => {
@@ -237,7 +237,7 @@ const shapes = {
 
 
 module.exports = {
-  setShaper(shapr){
+  setShaper(shapr) {
     shaper = shapr;
   },
   public: shapes

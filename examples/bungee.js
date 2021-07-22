@@ -58,4 +58,8 @@ draw=function(){
 
 }
 
+windowMoved = function(eve){
+  const delta = createVector(eve.deltaX, eve.deltaY);
+  pos.add(delta.invert());
+}
 require("../");

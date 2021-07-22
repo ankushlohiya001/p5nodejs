@@ -4,6 +4,9 @@ const Mode = require("./../constants");
 const math = require("./../math").mathFuns;
 
 class Color {
+  static RGB_MAX = [255, 255, 255];
+  static HSL_MAX = [360, 100, 100];
+  static HSB_MAX = [360, 100, 100];
   constructor(color, spaces = null) {
     if (!(color && color.constructor == Array)) return;
     this.value = [...color.map(math.round)];
@@ -92,7 +95,7 @@ class Color {
 
   static color(colorMode, ...pars) {
     if (pars.length < 1) pars[0] = 0;
-    let color = "";
+    let color = [0, 0, 0];
     let alpha = 100;
     if (typeof pars[0] == "array") {
       pars = [...pars[0], pars[1]];
@@ -102,46 +105,49 @@ class Color {
       case 1:
       case 2:
         {
-          let [a, b] = pars;
-          b = b || alpha;
-          switch (a.constructor) {
+          const b = parseFloat(pars[1]);
+          const par = pars[0];
+          switch (par.constructor) {
             case String:
-              let col = colorParse(a.toLowerCase());
-              if (col.space) {
-                color = col.values;
-                b = col.alpha * 100;
-              } else color = [0, 0, 0];
+              let col = colorParse(par.toLowerCase());
+              color = !!col.space ? col.values : [0, 0, 0];
+              alpha = col.alpha * 100;
               break;
             case Number:
-              color = [a, a, a];
+              color = [par, par, par];
               break;
             case Color:
-              return a.copy();
-            default:
-              color = [0, 0, 0];
+              color = par.copy();
+              if(!Number.isNaN(b)) color.setAlpha(b); 
+              return color;
           }
-          alpha = parseFloat(b);
+          if(!Number.isNaN(b)) alpha = b;
         }
         break;
       case 3:
       case 4:
         {
-          let [a, b, c, d] = pars;
-          alpha = d || alpha;
+          const d = parseFloat(pars[3]);
+          alpha = Number.isNaN(d) ? 100 : d;
+          let spaceMax;
           switch (colorMode) {
             case Mode.HSL:
               colorMode = 'hsl';
+              spaceMax = Color.HSL_MAX;
               break;
             case Mode.HSB:
               colorMode = 'hsv';
+              spaceMax = Color.HSB_MAX;
               break;
             default:
               colorMode = 'rgb';
+              spaceMax = Color.RGB_MAX;
           }
-          color = colorSpace[colorMode].rgb([a, b, c]);
+          pars = pars.map((val, i)=>math.constrain(val, 0, spaceMax[i]));
+          color = colorSpace[colorMode].rgb(pars);
         }
     }
-    let tmpColor = new Color(color);
+    const tmpColor = new Color(color);
     tmpColor.alpha = alpha / 100;
     return tmpColor;
   }

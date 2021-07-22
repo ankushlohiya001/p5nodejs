@@ -334,6 +334,10 @@ const stateChanger = {
     state._rectMode = mode;
   },
 
+  beginShape(mode) {
+    state._shapeMode = mode;
+  },
+
   ///////////////////////////////////////
   /////// transformations
   /////////////////////////////////////

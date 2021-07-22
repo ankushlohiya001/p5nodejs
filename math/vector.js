@@ -5,7 +5,7 @@ function validator(x, y) {
   switch (typeof x) {
     case "object":
       {
-        if (x.constructor === Vector) return [x.x, x.y];
+        if (x.constructor === Vector) return [x[0], x[1]];
         else if (x.constructor === Array && typeof x[0] == "number") {
           if (typeof x[1] != "number") x[1] = 0;
           return [x[0], x[1]];
@@ -32,7 +32,7 @@ function isValid(vecA) {
 }
 
 
-class Vector {
+class Vector extends Array {
 
   static createVector(x = 0, y = 0) {
     [x, y] = validator(x, y);
@@ -94,15 +94,38 @@ class Vector {
     return 0;
   }
 
-  static dist(vecA, vecB){
+  static dist(vecA, vecB) {
     return math.dist(vecA.x, vecA.y, vecB.x, vecB.y);
   }
 
+  static lerp(vecA, vecB, rate) {
+    let vecAcp = vecA.copy();
+    if (isValid(vecA) && isValid(vecB)) {
+      return vecAcp.lerp(vecB, rate);
+    }
+    return vecAcp;
+  }
+
   constructor(x, y) {
-    if (typeof x != "number") x = 0;
-    if (typeof y != "number") y = 0;
-    this.x = x;
-    this.y = y;
+    super(2);
+    this[0] = typeof x === "number" ? x : 0;
+    this[1] = typeof y === "number" ? y : 0;
+  }
+
+  get x() {
+    return this[0];
+  }
+
+  set x(newX) {
+    this[0] = newX;
+  }
+
+  get y() {
+    return this[1];
+  }
+
+  set y(newY) {
+    this[1] = newY;
   }
 
   copy() {
@@ -188,6 +211,19 @@ class Vector {
     return 0;
   }
 
+  lerp(x, y, rate = null) {
+    if (rate === null) {
+      rate = y;
+      y = null;
+    }
+    [x, y] = validator(x, y);
+    if (x != null) {
+      this.x = math.lerp(this.x, x, rate);
+      this.y = math.lerp(this.y, y, rate);
+    }
+    return this;
+  }
+
   heading() {
     return math.atan2(this.y, this.x);
   }
@@ -195,7 +231,8 @@ class Vector {
   normalize() {
     let mag = this.mag();
     if (mag !== 0) {
-      this.set(this.x / mag, this.y / mag);
+      this.x /= mag;
+      this.y /= mag;
     }
     return this;
   }
@@ -212,7 +249,9 @@ class Vector {
   rotate(ang) {
     let mag = this.mag();
     ang += this.heading();
-    return this.set(mag * math.cos(ang), mag * math.sin(ang));
+    this.x = mag * math.cos(ang);
+    this.y = mag * math.sin(ang);
+    return this;
   }
 
   toString() {

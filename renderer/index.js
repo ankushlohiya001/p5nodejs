@@ -85,7 +85,7 @@ class Renderer {
     const state = this.state;
     const win = this.window;
     this.draw = draw;
-    (function looper() {
+    (async function looper() {
       const crnt = performance.now();
       state._deltaTime = crnt - state._lastPerformance;
       state._lastPerformance = crnt;
@@ -93,7 +93,8 @@ class Renderer {
       state.incFrameCount();
       stateChanger.resetMatrix();
       draw();
-      if (state._willRender) win.render();
+      state.updateLastEvent();
+      if (state._willRender) await win.render();
 
       const timeConsumed = performance.now() - crnt;
       let delayForNext = 1000 / state._fps - timeConsumed;
