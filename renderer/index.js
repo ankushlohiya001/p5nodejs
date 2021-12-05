@@ -1,119 +1,114 @@
-const engine = require("./../../node-sdl-canvas");
-const performance = require("perf_hooks").performance;
+const Renderer = require("./renderer");
+const State = require("../state");
+const Shaper = require("../shapes"); 
+const Color = require("../color");
+const Maths = require("../math");
+const EventManager = require("../events"); 
 
-const {
-  State,
-  stateChanger
-} = require("../state");
-const renderFuns = require("./render_funs");
+let renderer, state;
 
-class Renderer {
-  static defaultConfig = {
-    width: 1280,
-    height: 720,
-    title: "nodeP5 sketch"
-  }
+Renderer.useSketch = function(sk) {
+  renderer = sk.renderer;
+  state = renderer.state;
+	State.useRenderer(renderer);
+  Shaper.useRenderer(renderer);
+  Color.useRenderer(renderer);
+  Maths.useRenderer(renderer);
+  EventManager.useRenderer(renderer);
+}
 
-  constructor(wid, hei) {
-    let {
-      width,
-      height,
-      title
-    } = Renderer.defaultConfig;
-    width = wid || width;
-    height = hei || height;
-    this.initContext(width, height);
-    this.initWindow(title, width, height);
-    this.pendingDraw = false;
-    renderFuns.setRenderer(this);
-  }
+const defaults = Renderer.defaults = {
+  width: 1280,
+  height: 720,
+  resizable: true,
+  opengl: false,
+  EPSILON: 0
+};
 
-  get canvas() {
-    return this.context.canvas;
-  }
-
-  get width() {
-    return this.canvas.width;
-  }
-
-  set width(wid) {
-    const win = this.window;
-    if (!win) {
-      this.canvas.width = wid;
-      return wid;
+const globals = Renderer.globals = {
+  createWindow(wid = null, hei = null, title = null) {
+    if (wid == null && hei == null) {
+      const canvas = renderer.canvas;
+      if(!canvas){
+        wid = defaults.width;
+        hei = defaults.height;
+      }else{
+        wid = canvas.width;
+        hei = canvas.height;
+      }
     }
-    let hei = win.size[1];
-    win.size = [wid, hei];
-  }
+    renderer.createWindow(wid, hei, title || renderer.sketch.constructor.name);
+  },
 
-  get height() {
-    return this.canvas.height;
-  }
-
-  set height(hei) {
-    const win = this.window;
-    if (!win) {
-      this.canvas.height = hei;
-      return hei;
+  createCanvas(wid = null, hei = null, type = "2d") {
+    if(wid == null && hei == null ){
+      const window = renderer.window;
+      if (!window) {
+        wid = defaults.width;
+        hei = defaults.height;
+      } else {
+        const size = window.size;
+        wid = size.w;
+        hei = size.h;
+      }
     }
-    let wid = win.size[0];
-    win.size = [wid, hei];
-  }
+    renderer.createCanvas(wid, hei, type);
+    return renderer.canvas;
+  },
 
-  setState(state) {
-    state.setRenderer(this);
-    this.state = state;
-  }
+  resizeCanvas(wid = null, hei = null) {
+    const canvas = renderer.canvas;
+    if (!canvas) {
+      throw "canvas is not created yet..";
+    }
+    if (wid == null && hei == null) {
+      const window = renderer.window;
+      if(!window){
+        wid = defaults.width;
+        hei = defaults.height;
+      }else{
+        const size = window.size;
+        wid = size.w;
+        hei = size.h;
+      }
+    }
+    state.saveCanvasState(renderer.context);
+    canvas.width = wid;
+    canvas.height = hei;
+    state.restoreCanvasState(renderer.context);
+    return canvas;
+  },
 
-  initWindow(title, wid, hei) {
-    engine.mainLoop();
-    const window = engine.createWindow(title, wid, hei);
-    window.canvas = this.canvas;
-    this.window = window;
-  }
+  saveCanvas(filename = __filename + "_sketch.png", after) {
+    const canvas = renderer.canvas;
+    if (canvas) {
+      canvas.saveAs(filename, after);
+    }
+  },
 
-  initContext(width, height) {
-    const canvas = engine.createCanvas(width, height);
-    this.context = canvas.getContext("2d");
-  }
+  redraw(times) {
+    renderer.redraw(times);
+  },
 
-  saveCanvas(filename, after) {
-    engine.saveAs(this.canvas, filename, after);
-  }
+  alert(mess) {
+    console.info("yet to implement!!");
+    // return renderer.window.alert(mess);
+  },
 
-  loop(draw) {
-    const state = this.state;
-    const win = this.window;
-    this.draw = draw;
-    (async function looper() {
-      const crnt = performance.now();
-      state._deltaTime = crnt - state._lastPerformance;
-      state._lastPerformance = crnt;
-
-      state.incFrameCount();
-      stateChanger.resetMatrix();
-      draw();
-      state.updateLastEvent();
-      if (state._willRender) await win.render();
-
-      const timeConsumed = performance.now() - crnt;
-      let delayForNext = 1000 / state._fps - timeConsumed;
-      delayForNext = delayForNext < 0 ? 0 : delayForNext;
-      if (state._willLoop) state._loop = setTimeout(looper, Math.ceil(delayForNext));
-    })();
-
-  }
+  confirm(mess) {
+    console.info("yet to implement!!");
+    // return renderer.window.confirm(mess);
+  },
 
   exit() {
-    const window = this.window;
-    // if (window.confirm("do you really want to exit??")) {
-      window.closable = true;
-      window.exit();
-    // }
+    renderer.exit();
   }
 }
 
-module.exports = {
-  Renderer,
-  renderFuns: renderFuns.public
+globals.size = function(...params){
+  globals.createWindow(...params);
+  globals.resizeCanvas();
 };
+
+module.exports = Renderer;
+

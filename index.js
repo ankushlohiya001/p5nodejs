@@ -1,21 +1,11 @@
-const {
-  Renderer,
-  renderFuns
-} = require("./renderer");
-const Mode = require("./constants");
-const math = require("./math");
-const {
-  Shaper,
-  shapes
-} = require("./shapes");
-const EventManager = require("./events");
-const colorManager = require("./color");
+const Renderer = require("./renderer");
+const Maths = require("./math");
+const Shaper = require("./shapes");
+const Color = require("./color");
 const io = require("./io");
 const envFuns = require("./env");
-const {
-  State,
-  stateChanger
-} = require("./state");
+const State = require("./state");
+const EventManager = require("./events");
 
 function makeGlobal(obj) {
   const desc = Object.getOwnPropertyDescriptors(obj);
@@ -24,27 +14,87 @@ function makeGlobal(obj) {
   }
 }
 
-{
-  const preload = global.preload || function() {};
-  const setup = global.setup || function() {};
-  const draw = global.draw || function() {};
+class Sketch {
+  static inited = false;
+  static running = false;
 
-  const internelRenderer = new Renderer(1280, 720);
-  const state = new State();
-  const shaper = new Shaper();
-  const eventManager = new EventManager(internelRenderer);
+  static initModes(){
+    makeGlobal(Color.modes);
+    makeGlobal(Maths.modes);
+    makeGlobal(Shaper.modes);
+    makeGlobal(State.modes);
+    makeGlobal(EventManager.modes);
+  }
+  
+  static initGlobals(){
+     if (!Sketch.inited) {
+        Sketch.initModes();
+        makeGlobal(io);
+        makeGlobal(envFuns);
+        makeGlobal(Maths.globals);
+        makeGlobal(Color.globals);
+        makeGlobal(Shaper.globals);
+        makeGlobal(State.globals);
+        makeGlobal(EventManager.globals);
+        makeGlobal(Renderer.globals);
+        Sketch.inited = true;
+      }
+  }
 
-  internelRenderer.setState(state);
-  shaper.setState(state);
-  math.setState(state);
-  colorManager.setState(state);
+  static run() {
+    if(this.running){
+      console.warn(`currently allowed 1 runtime only for performance issue.`);
+      return;
+    } 
+    this.running = true;
+    const sketchObj = new this();
+    sketchObj.run();
+  }
 
-  (async function() {
+  constructor() {
+    const renderer = this.renderer = new Renderer(this);
+    renderer._sketch = this;
+    this.running = false;
+  }
+
+  setup() {
+    createCanvas(520, 150);
+    createWindow();
+    resizable(false);
+    noStroke();
+    fill("#ed225d");
+    rect(0, 0, 145, 150);
+    fill("#43853d");
+    rect(145, 0, 255, 150);
+    fill("#f7df1e");
+    rect(390, 0, 130, 150);
+    textSize(100);
+    stroke(255);
+    fill(255);
+    strokeWeight(4);
+    text("p5node.js", 15, 100);
+  }
+
+  draw() {
+    noLoop();
+  }
+
+  windowResized(){
+    resizeCanvas();
+  }
+
+  crashed(err){
+    print(err);
+    exit();
+  }
+
+  async run() {
+    Sketch.initGlobals();
     try {
-      makeGlobal(io);
+      Renderer.useSketch(this);
 
       await new Promise(res => {
-        preload();
+        if (typeof this.preload == "function") this.preload();
         let lop = setInterval(() => {
           if (io.preloadDone()) {
             clearInterval(lop);
@@ -53,28 +103,27 @@ function makeGlobal(obj) {
         }, 10);
       });
 
+      ////////////////////
+      ///defaults//
+      createCanvas();
+      fill(255);
+      strokeCap(ROUND);
+      //////////////////
+      this.setup();
     } catch (err) {
-      if (global.crashed) global.crashed(err);
-      else {
-        console.error(`->${err}`);
-      }
+      this.crashed(err);
     }
-    makeGlobal(Mode);
-    makeGlobal(envFuns);
-    makeGlobal(math.mathFuns);
-    makeGlobal(colorManager.colorFuns);
-    makeGlobal(shapes);
-    makeGlobal(stateChanger);
-    makeGlobal(renderFuns);
-    eventManager.applyAllEvents();
-    ////////////////////
-    ///defaults//
-    if (!global.draw) noLoop();
-    fill(255);
-    strokeCap(ROUND);
-    //////////////////
-    await setup();
-    internelRenderer.loop(draw);
-  })();
-  // setup();
+
+    this.renderer.loop(()=>{
+      Renderer.useSketch(this);
+      try{
+        this.draw();
+      }catch(err){
+        this.crashed(err);
+      }
+    });
+
+  }
 }
+
+module.exports = Sketch;

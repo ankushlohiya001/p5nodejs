@@ -1,0 +1,7 @@
+-> implement opengl context creation
+-> implement 2d shapes with opengl
+		-> Plane / Rect
+		-> Ellipse
+		-> Triangle
+
+-> implement 3d shapes

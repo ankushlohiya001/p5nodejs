@@ -1,4 +1,4 @@
-const engine = require("./../../node-sdl-canvas");
+const loadImage = require("canvas").loadImage;
 class Image {
   constructor() {
     this._surface = null;
@@ -23,7 +23,7 @@ class Image {
     return this._surface !== null;
   }
   static loadSurface(buf) {
-    return engine.loadImage(buf);
+    return loadImage(buf);
   }
 }
 

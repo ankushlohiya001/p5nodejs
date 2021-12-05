@@ -1,6 +1,6 @@
 {
   "name": "p5nodejs",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "mimic P5.js in sdl using nodejs",
   "main": "index.js",
   "scripts": {
@@ -10,14 +10,14 @@
     "type": "git",
     "url": "git+https://github.com/ankushlohiya001/nodeP5.git"
   },
-  "author": "",
+  "author": "kushlohiya",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ankushlohiya001/nodeP5/issues"
   },
   "homepage": "https://github.com/ankushlohiya001/nodeP5#readme",
   "dependencies": {
-    "node-sdl-canvas": "^2.2.0",
+    "node-sdl-canvas": "^3.1.0",
     "color-parse": "^1.4.2",
     "color-space": "^1.16.0",
     "node-fetch": "^2.6.1"

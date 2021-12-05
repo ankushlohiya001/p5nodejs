@@ -1,100 +1,74 @@
-class EventManager {
-  static userEventMap = {
-    keyPressed: "keypress",
-    mousePressed: "mousedown",
-    mouseClicked: "click",
-    doubleClicked: "dblclick",
-    mouseReleased: "mouseup",
-    mouseEntered: "mouseenter",
-    mouseLeaved: "mouseleave",
-    keyTyped: "keyinput",
-    keyReleased: "keyup",
-    mouseWheel: "wheel",
-    mouseDragged: "drag",
-    windowResized: "resize",
-    windowMoved: "move",
-    windowMaximized: "maximize",
-    windowMinimized: "minimize",
-    windowFocused: "focus",
-    windowBlurred: "blur",
-    windowRestored: "restore",
-    fileDropped: "drop",
-  }
+const EventManager = require("./eventManager");
 
-  constructor(renderer) {
-    this.renderer = renderer;
-    renderer.window.closable = false;
-  }
+let state = {};
 
-  applyEvent(eve, todo) {
-    if (!this.renderer.window) return;
-    this.renderer.window.on(eve, todo);
-  }
-
-  updateEventData() {
-    const state = this.renderer.state;
-    const eventData = state._eventData;
-
-    this.applyEvent("keypress", function() {
-      eventData.keyPressed = true;
-    });
-
-    this.applyEvent("keyup", function() {
-      eventData.keyPressed = false;
-    });
-
-    this.applyEvent("mousedown", function() {
-      eventData.mousePressed = true;
-    });
-
-    this.applyEvent("mouseup", function() {
-      eventData.mousePressed = false;
-    });
-
-    this.applyEvent("mousemove", eve => state.updateMouseEvent(eve));
-    this.applyEvent("keypress", eve => state.updateKeyEvent(eve));
-
-  }
-
-  applyInternalEvents() {
-    const state = this.renderer.state;
-    const renderer = this.renderer;
-    this.applyEvent("close", () => {
-      renderer.exit();
-    });
-
-    this.applyEvent("minimize", () => {
-      state._willRender = false;
-    });
-
-    this.applyEvent("restore", () => {
-      state._willRender = true;
-    });
-
-    ///// preserving canvas state, as resizing cause canvas to loss it's state.
-
-    renderer.window.beforeResize = () => {
-      state.saveCanvasState();
-    };
-
-    this.applyEvent("resize", () => {
-      state.restoreCanvasState();
-    });
-  }
-
-  applyUserEvents() {
-    const eventMap = EventManager.userEventMap;
-    for (let event in eventMap) {
-      if (global[event]) this.applyEvent(eventMap[event], global[event]);
-    }
-  }
-
-  applyAllEvents() {
-    this.applyInternalEvents();
-    this.updateEventData();
-    this.applyUserEvents();
-  }
-
+EventManager.useRenderer = function(renderer){
+  state = renderer.state;
 }
+
+const modes = EventManager.modes = {
+  BACKSPACE: 8,
+  DELETE: 46,
+  RETURN: 13,
+  ENTER: 13,
+  TAB: 9,
+  ESCAPE: 27,
+  SHIFT: 16,
+  CONTROL: 17,
+  OPTION: 0,
+  ALT: 18,
+  UP_ARROW: 38,
+  DOWN_ARROW: 40,
+  LEFT_ARROW: 37,
+  RIGHT_ARROW: 39,
+  SPACEBAR: 32,
+};
+
+const globals = EventManager.globals = {
+  get mouseX() {
+    return state._eventData.mouseX;
+  },
+
+  get mouseY() {
+    return state._eventData.mouseY;
+  },
+
+  get pmouseX() {
+    return state._lastEventData.mouseX;
+  },
+
+  get pmouseY() {
+    return state._lastEventData.mouseY;
+  },
+
+  get movedX() {
+    return globals.mouseX - globals.pmouseX;
+  },
+
+  get movedY() {
+    return globals.mouseY - globals.pmouseY;
+  },
+
+  get mouseIsPressed() {
+    return !!state._eventData.mousePressed;
+  },
+
+  get keyIsPressed() {
+    return !!state._eventData.keyPressed;
+  },
+
+  get key() {
+    return state._eventData.key;
+  },
+
+  get keyCode() {
+    return state._eventData.keyCode;
+  },
+
+  keyIsDown(code) {
+    return globals.keyIsPressed && code === globals.keyCode;
+  },
+
+};
 
 module.exports = EventManager;

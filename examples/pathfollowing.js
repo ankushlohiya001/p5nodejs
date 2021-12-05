@@ -1,3 +1,5 @@
+const Sketch = require("../");
+
 const {
   Particle: {
     Triangle
@@ -32,68 +34,74 @@ class Path {
   }
 }
 
-setup = function() {
-  angleMode(DEGREES);
-  let pts = [
-    [80, 200],
-    [1200, 500]
-  ];
-
-  for (let i = 1; i < pts.length; i++) {
-    vecs.push(new Path(...pts[i - 1], ...pts[i], 30));
-  }
-	
-	movers=new ParticleSystem(random(width), random(height)); 
-  movers.setWalls();
-}
-
 let vecs = [];
 let movers;
-draw = function() {
-	if(movers.list.length<50){
-		let mover = new Triangle(0, 0, 20, 10);
-		movers.pos.set(random(width), random(height));
-		mover.vel.set(Vector.random2d().setMag(10));
-		movers.attach(mover);
-	}
-  background(0);
-  stroke(200);
-  strokeWeight(4);
-  for (let pt of vecs) {
-	   pt.draw();
-	}
 
-  movers.draw(mover=>{
-	  let des = mover.vel.copy();
-	  des.setMag(20);
-	  let futLoc = Vector.add(mover.pos, des);
+class PathFollow extends Sketch {
 
-	  let vecA = Vector.sub(futLoc, vecs[0].start);
+  setup() {
+    createWindow();
+    resizable(false);
+    angleMode(DEGREES);
+    let pts = [
+      [80, 200],
+      [1200, 500]
+    ];
 
-	  let patVec = Vector.sub(vecs[0].end, vecs[0].start);
+    for (let i = 1; i < pts.length; i++) {
+      vecs.push(new Path(...pts[i - 1], ...pts[i], 30));
+    }
 
-	  let ang = Vector.angleBetween(patVec, vecA);
-	  if(ang*0!=0) ang=0.00001;
+    movers = new ParticleSystem(random(width), random(height));
+    movers.setWalls();
+  }
+  draw() {
+    if (movers.list.length < 50) {
+      let mover = new Triangle(0, 0, 20, 10);
+      movers.pos.set(random(width), random(height));
+      mover.vel.set(Vector.random2d().setMag(10));
+      movers.attach(mover);
+    }
+    background(0);
+    stroke(200);
+    strokeWeight(4);
+    for (let pt of vecs) {
+      pt.draw();
+    }
 
-	  patVec.setMag(vecA.mag() * cos(ang));
+    movers.draw(mover => {
+      let des = mover.vel.copy();
+      des.setMag(20);
+      let futLoc = Vector.add(mover.pos, des);
 
-	  patVec.add(vecs[0].start);
-	  let dis=Vector.dist(futLoc, patVec);
+      let vecA = Vector.sub(futLoc, vecs[0].start);
 
-	  if(dis > vecs[0].rad){
-	  	let dir=Vector.sub(patVec, mover.pos);
-	  	dir.setMag(10);
-	  	let steer=Vector.sub(dir, mover.vel);
-	  	steer.limit(1);
+      let patVec = Vector.sub(vecs[0].end, vecs[0].start);
 
-	  	// print(mover.pos)
-	  	mover.applyForce(steer);
-	  }
-  });
+      let ang = Vector.angleBetween(patVec, vecA);
+      if (ang * 0 != 0) ang = 0.00001;
+
+      patVec.setMag(vecA.mag() * cos(ang));
+
+      patVec.add(vecs[0].start);
+      let dis = Vector.dist(futLoc, patVec);
+
+      if (dis > vecs[0].rad) {
+        let dir = Vector.sub(patVec, mover.pos);
+        dir.setMag(10);
+        let steer = Vector.sub(dir, mover.vel);
+        steer.limit(1);
+
+        // print(mover.pos)
+        mover.applyForce(steer);
+      }
+    });
+  }
+
+  mousePressed() {
+    movers.pos.set(mouseX, mouseY);
+    // mover.vel.set(Vector.random2d());
+  }
 }
 
-mousePressed = function() {
-  movers.pos.set(mouseX, mouseY);
-  // mover.vel.set(Vector.random2d());
-}
-require("../");
+PathFollow.run();

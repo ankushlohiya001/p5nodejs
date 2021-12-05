@@ -1,4 +1,4 @@
-const math = require("./math_funs").public;
+const Maths = require("./maths");
 
 function validator(x, y) {
 
@@ -40,18 +40,18 @@ class Vector extends Array {
   }
 
   static fromAngle(ang) {
-    return new Vector(math.cos(ang), math.sin(ang));
+    return new Vector(Maths.globals.cos(ang), Maths.globals.sin(ang));
   }
 
   static random2d() {
-    const ang = math.random(0, math.TWO_PI);
+    const ang = Maths.globals.random(0, Maths.globals.TWO_PI);
     return new Vector(Math.cos(ang), Math.sin(ang));
   }
 
   static angleBetween(vecA, vecB) {
     let dot = Vector.dot(vecA, vecB);
     let magMult = vecA.mag() * vecB.mag();
-    return math.acos(dot / magMult);
+    return Maths.globals.acos(dot / magMult);
   }
 
   static add(vecA, vecB) {
@@ -95,7 +95,7 @@ class Vector extends Array {
   }
 
   static dist(vecA, vecB) {
-    return math.dist(vecA.x, vecA.y, vecB.x, vecB.y);
+    return Maths.globals.dist(vecA.x, vecA.y, vecB.x, vecB.y);
   }
 
   static lerp(vecA, vecB, rate) {
@@ -184,7 +184,7 @@ class Vector extends Array {
   }
 
   mag() {
-    return math.sqrt(this.magSq());
+    return Maths.globals.sqrt(this.magSq());
   }
 
   invert() {
@@ -198,7 +198,7 @@ class Vector extends Array {
   dist(x, y) {
     [x, y] = validator(x, y);
     if (x != null) {
-      return math.dist(this.x, this.y, x, y);
+      return Maths.globals.dist(this.x, this.y, x, y);
     }
     return 0;
   }
@@ -218,14 +218,14 @@ class Vector extends Array {
     }
     [x, y] = validator(x, y);
     if (x != null) {
-      this.x = math.lerp(this.x, x, rate);
-      this.y = math.lerp(this.y, y, rate);
+      this.x = Maths.globals.lerp(this.x, x, rate);
+      this.y = Maths.globals.lerp(this.y, y, rate);
     }
     return this;
   }
 
   heading() {
-    return math.atan2(this.y, this.x);
+    return Maths.globals.atan2(this.y, this.x);
   }
 
   normalize() {
@@ -242,15 +242,15 @@ class Vector extends Array {
   }
 
   limit(mag) {
-    mag = math.min(mag, this.mag());
+    mag = Maths.globals.min(mag, this.mag());
     return this.setMag(mag);
   }
 
   rotate(ang) {
     let mag = this.mag();
     ang += this.heading();
-    this.x = mag * math.cos(ang);
-    this.y = mag * math.sin(ang);
+    this.x = mag * Maths.globals.cos(ang);
+    this.y = mag * Maths.globals.sin(ang);
     return this;
   }
 
