@@ -1,6 +1,5 @@
-const document = require("./../../node-sdl-canvas");
+const document = require("node-sdl-canvas");
 const State = require("../state");
-const Shaper = require("../shapes");
 const Maths = require("../math");
 const performance = require("perf_hooks").performance;
 const EventManager = require("../events"); 
@@ -12,7 +11,7 @@ class Renderer {
     this._sketch = null;
     this._window = null;
     this._canvas = null;
-    this.initStateAndShaper();
+    this.initState();
     this.drawIsPending = false;
   }
 
@@ -69,9 +68,8 @@ class Renderer {
     }
   }
 
-  initStateAndShaper() {
-    const state = this.state = new State(this);
-		this.shaper = new Shaper(state);
+  initState() {
+    this.state = new State(this);
   }
 
   async render(drawFn){

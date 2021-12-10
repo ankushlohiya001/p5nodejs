@@ -1,34 +1,12 @@
-const Maths = require("./../math")
+const maths = require("./../math").globals;
 const Shaper = require("./shaper");
+const modes = Shaper.modes = require("./modes");
 
-let shaper = null;
+let shaper = new Shaper;
 
 Shaper.useRenderer = function(renderer){
-	shaper = renderer.shaper;
+	shaper.setRenderer(renderer);
 }
-
-const modes = Shaper.modes = {
-  CHORD: Symbol("CHORD"),
-  PIE: Symbol("PIE"),
-  OPEN: Symbol("OPEN"),
-  CLOSE: Symbol("CLOSE"),
-
-  CORNER: Symbol("CORNER"),
-  CORNERS: Symbol("CORNERS"),
-  CENTER: Symbol("CENTER"),
-  RADIUS: Symbol("RADIUS"),
-
-  POINTS: Symbol("POINTS"),
-  LINES: Symbol("LINES"),
-
-  TRIANGLES: Symbol("TRIANGLES"),
-  TRIANGLE_FAN: Symbol("TRIANGLE_FAN"),
-  TRIANGLE_STRIP: Symbol("TRIANGLE_STRIP"),
-
-  QUADS: Symbol("QUADS"),
-  QUAD_STRIP: Symbol("QUAD_STRIP"),
-}
-
 
 const shapes = Shaper.shapes = Shaper.globals = {
   line(sx, sy, ex, ey) {
@@ -61,10 +39,10 @@ const shapes = Shaper.shapes = Shaper.globals = {
     let _wid = abs(wid);
     let _hei = abs(hei);
     const min = (_hei < _wid ? _hei : _wid) / 2;
-    tl = Maths.globals.constrain(tl, 0, min);
-    tr = Maths.globals.constrain(tr, 0, min);
-    br = Maths.globals.constrain(br, 0, min);
-    bl = Maths.globals.constrain(bl, 0, min);
+    tl = maths.constrain(tl, 0, min);
+    tr = maths.constrain(tr, 0, min);
+    br = maths.constrain(br, 0, min);
+    bl = maths.constrain(bl, 0, min);
 
     [px, py, wid, hei] = shaper.rectModer(px, py, wid, hei);
 
@@ -117,8 +95,8 @@ const shapes = Shaper.shapes = Shaper.globals = {
     [cx, cy, w, h] = shaper.ellipseModer(cx, cy, w, h);
     const arcModerFns = shaper.arcModer(cx, cy);
 
-    st = Maths.angleModer(state, st);
-    end = Maths.angleModer(state, end);
+    st = maths.toRadians(st);
+    end = maths.toRadians(end);
 
     shaper.drawShape(ctx => {
       ctx.ellipse(cx, cy, w / 2, h / 2, 0, st, end);

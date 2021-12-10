@@ -4,10 +4,10 @@ const Matrix = require("./matrix");
 const Line = require("./geomat").Line;
 const Noise = require("./noise");
 
-let state = {};
+let maths = new Maths;
 
 Maths.useRenderer = function(renderer){
-  state = renderer.state;
+  maths.setRenderer(renderer);
 }
 
 const modes = Maths.modes = {
@@ -176,38 +176,42 @@ const mathFuns = Maths.globals = {
     return angle * (Math.PI / 180);
   },
 
+  toRadians(angle){
+    return maths.angleModer(angle);
+  },
+
   acos(value) {
     let angle = Math.acos(value);
-    return Maths.angleModer(state, angle, true);
+    return maths.angleModer(angle, true);
   },
 
   asin(value) {
     let angle = Math.asin(value);
-    return Maths.angleModer(state, angle, true);
+    return maths.angleModer(angle, true);
   },
 
   atan(value) {
     let angle = Math.atan(value);
-    return Maths.angleModer(state, angle, true);
+    return maths.angleModer(angle, true);
   },
 
   atan2(y, x) {
     let angle = Math.atan2(y, x);
-    return Maths.angleModer(state, angle, true);
+    return maths.angleModer(angle, true);
   },
 
   cos(angle) {
-    angle = Maths.angleModer(state, angle);
+    angle = maths.angleModer(angle);
     return Math.cos(angle);
   },
 
   sin(angle) {
-    angle = Maths.angleModer(state, angle);
+    angle = maths.angleModer(angle);
     return Math.sin(angle);
   },
 
   tan(angle) {
-    angle = Maths.angleModer(state, angle);
+    angle = maths.angleModer(angle);
     return Math.tan(angle);
   },
 

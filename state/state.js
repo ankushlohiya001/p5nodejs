@@ -18,7 +18,9 @@ class State {
     "globalCompositeOperation"
   ];
 
-  constructor() {
+  constructor(renderer) {
+    this.renderer = renderer;
+
     this.text = {
       size: 16,
       font: 'sans-serif'

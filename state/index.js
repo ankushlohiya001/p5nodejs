@@ -2,13 +2,12 @@ const Color = require("../color");
 const Maths = require("../math");
 const Shaper = require("../shapes");
 const State = require("./state");
+const modes = State.modes = require("./modes");
 
-let state = null;
-let renderer = null;
+let state;
 
-State.useRenderer = function(ren){
-	renderer = ren;
-	state = renderer.state;
+State.useRenderer = function(renderer){
+  state = renderer.state;
 }
 
 State.defaults = {
@@ -27,44 +26,6 @@ State.defaults = {
   _willRender: true,
 };
 
-const modes = State.modes = {
-  ARROW: Symbol("ARROW"),
-  WAIT: Symbol("WAIT"),
-  TEXT: Symbol("TEXT"),
-  MOVE: Symbol("MOVE"),
-  HAND: Symbol("HAND"),
-  CROSS: Symbol("CROSS"),
-
-  BLEND: Symbol("BLEND"),
-  REMOVE: Symbol("REMOVE"),
-  ADD: Symbol("ADD"),
-  BURN: Symbol("BURN"),
-  DODGE: Symbol("DODGE"),
-  SOFT_LIGHT: Symbol("SOFT_LIGHT"),
-  HARD_LIGHT: Symbol("HARD_LIGHT"),
-  OVERLAY: Symbol("OVERLAY"),
-  REPLACE: Symbol("REPLACE"),
-  SCREEN: Symbol("SCREEN"),
-  EXCLUSION: Symbol("EXCLUSION"),
-  MULTIPLY: Symbol("MULTIPLY"),
-  DIFFERENCE: Symbol("DIFFERENCE"),
-  LIGHTEST: Symbol("LIGHTEST"),
-  DARKEST: Symbol("DARKEST"),
-
-  BASELINE: Symbol("BASELINE"),
-  BOTTOM: Symbol("BOTTOM"),
-
-  TOP: Symbol("TOP"),
-  RIGHT: Symbol("RIGHT"),
-  LEFT: Symbol("LEFT"),
-
-  ROUND: Symbol("ROUND"),
-  BEVEL: Symbol("BEVEL"),
-  MITER: Symbol("MITER"),
-  ROUND: Symbol("ROUND"),
-  PROJECT: Symbol("PROJECT"),
-  SQUARE: Symbol("SQUARE"),
-};
 
 const globals = State.globals = {
   //////////////////////////////////////////
@@ -72,7 +33,7 @@ const globals = State.globals = {
   /////////////////////////////////////////
 
   get displayDensity() {
-    // return renderer.window.displayPixelRatio;
+    // return state.renderer.window.displayPixelRatio;
   },
 
   get deltaTime() {
@@ -84,24 +45,24 @@ const globals = State.globals = {
   },
 
   get drawingContext() {
-    return renderer.context;
+    return state.renderer.context;
   },
 
   get width() {
-    return renderer.canvas.width;
+    return state.renderer.canvas.width;
   },
 
   get height() {
-    return renderer.canvas.height;
+    return state.renderer.canvas.height;
   },
 
   get windowWidth() {
-    const window = renderer.window;
+    const window = state.renderer.window;
     if (window) return window.width;
   },
 
   get windowHeight() {
-    const window = renderer.window;
+    const window = state.renderer.window;
     if (window) return window.height;
   },
 
@@ -188,7 +149,7 @@ const globals = State.globals = {
 
   background(...params) {
     const col = color(...params);
-    const ctx = renderer.context;
+    const ctx = state.renderer.context;
     const wid = ctx.canvas.width;
     const hei = ctx.canvas.height;
     ctx.save();
@@ -200,7 +161,7 @@ const globals = State.globals = {
   },
 
   clear() {
-    const ctx = renderer.context;
+    const ctx = state.renderer.context;
     const wid = ctx.canvas.width;
     const hei = ctx.canvas.height;
     ctx.save();
@@ -414,14 +375,14 @@ const globals = State.globals = {
   ///////////////////////////////////
 
   push() {
-    const ctx = renderer.context;
+    const ctx = state.renderer.context;
     if (state.__pendingApply) state.applyState(ctx);
     ctx.save();
     state.savedStates.push({});
   },
 
   pop() {
-    const ctx = renderer.context;
+    const ctx = state.renderer.context;
     ctx.restore();
     if (state.savedStates.length) {
       Object.assign(state, state.savedStates.pop());
@@ -435,7 +396,7 @@ const globals = State.globals = {
   loadPixels(x = 0, y = 0, wid = null, hei = null) {
     wid = wid || globals.width;
     hei = hei || globals.height;
-    state._pixelData = renderer.context.getImageData(x, y, wid, hei);
+    state._pixelData = state.renderer.context.getImageData(x, y, wid, hei);
     state._pixelData.data.pitch = state._pixelData.width;
     state._pixelData.loc = {
       x,
@@ -497,7 +458,7 @@ const globals = State.globals = {
     dh = dh || pixels.height;
     if (x == null) x = pixels.loc.x;
     if (y == null) y = pixels.loc.y;
-    renderer.context.putImageData(state._pixelData, x, y, 0, 0, dw, dh);
+    state.renderer.context.putImageData(state._pixelData, x, y, 0, 0, dw, dh);
     state._pixelData = null;
   },
 
@@ -533,7 +494,7 @@ const globals = State.globals = {
   ///// window related states
   ///////////////////////////////
   title(tit = null){
-    const window = renderer.window;
+    const window = state.renderer.window;
     if(!window) return;
     if(tit==null) return window.title;
     window.title = "" + tit; // just converting to string
@@ -561,47 +522,52 @@ const globals = State.globals = {
       default:
         type = "arrow";
     }
-    const window = renderer.window;
+    const window = state.renderer.window;
     if (!window) return;
     window.cursor = type;
   },
 
   noCursor() {
-    const window = renderer.window;
+    const window = state.renderer.window;
     if (!window) return;
     window.cursor;
   },
 
   fullscreen(tog = null) {
-    const window = renderer.window;
+    const window = state.renderer.window;
     if (!window) return;
     if (tog === null) return window.fullscreen;
     window.fullscreen = !!tog;
   },
 
   grab() {
-    if (!renderer.window) return;
-    renderer.window.grab = true;
+    const window = state.renderer.window;
+    if (!window) return;
+    window.grab = true;
   },
 
   noGrab() {
-    if (!renderer.window) return;
-    renderer.window.grab = false;
+    const window = state.renderer.window;
+    if (!window) return;
+    window.grab = false;
   },
 
   resizable(is) {
-    if (!renderer.window) return;
-    renderer.window.resizable = !!is;
+    const window = state.renderer.window;
+    if (!window) return;
+    window.resizable = !!is;
   },
 
   showBorder(tog) {
-    if (!renderer.window) return;
-    renderer.window.bordered = !!tog;
+    const window = state.renderer.window;
+    if (!window) return;
+    window.bordered = !!tog;
   },
 
   setPosition(x, y) {
-    if (!renderer.window) return;
-    renderer.window.position = {
+    const window = state.renderer.window;
+    if (!window) return;
+    window.position = {
       x,
       y
     };

@@ -2,9 +2,17 @@ const Maths = require("./../math");
 const math = Maths.globals;
 
 class Shaper {
-  constructor(state) {
+  constructor() {
     this._vertices = [];
-		this.state = state;
+		this.renderer = {};
+  }
+
+  setRenderer(renderer){
+    this.renderer = renderer;
+  }
+
+  get state(){
+    return this.renderer.state;
   }
 	
   arcModer(cx, cy) {
